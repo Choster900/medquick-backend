@@ -1,25 +1,26 @@
-import { Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
+import {
+    HttpException,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    OnModuleInit,
+    ForbiddenException,
+    ConflictException,
+} from '@nestjs/common';
 
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
-import { RegisterUserDto } from './dto';
-/**
- *
- *
- * @export
- * @class AuthService
- * @extends {PrismaClient}
- * @implements {OnModuleInit}
- */
+import { LoginUserByEmailDto, RegisterUserDto } from './dto';
+
 @Injectable()
-
 export class AuthService extends PrismaClient implements OnModuleInit {
 
-    private readonly logger = new Logger('AuthService')
+    private readonly logger = new Logger('AuthService');
 
     onModuleInit() {
         this.$connect();
-        this.logger.log('Database connected')
+        this.logger.log('Database connected');
     }
 
     async registerUser(registerUserDto: RegisterUserDto) {
@@ -31,21 +32,16 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             userThirdName, userFirstLastname,
             userPassword, userDui, userBirthdate,
             userSecondLastname, userThirdLastname,
-        } = registerUserDto
+        } = registerUserDto;
 
         try {
-
-            const user = await this.user.findUnique({
+            const existingUser = await this.user.findUnique({
                 where: { user_email: userEmail }
-            })
+            });
 
-            if (user) {
-                throw new InternalServerErrorException({
-                    status: 400,
-                    message: 'El correo del usuario ya esta registrado'
-                })
+            if (existingUser) {
+                throw new ConflictException('El correo del usuario ya está registrado');
             }
-
 
             const newUser = await this.user.create({
                 data: {
@@ -57,22 +53,57 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                     user_second_lastname: userSecondLastname,
                     user_third_lastname: userThirdLastname,
                     user_email: userEmail,
-                    user_password: userPassword,
+                    user_password: bcrypt.hashSync(userPassword, 10),
                     user_dui: userDui,
                     user_birthdate: userBirthdate,
                     user_phone_number: userPhoneNumber,
-                    user_address: userAddress
-                }
-            })
+                    user_address: userAddress,
+                },
+            });
 
             return {
                 user: newUser,
-                token: 'Abc123Token'
+                token: 'Abc123Token',
             };
 
         } catch (error) {
-            throw new InternalServerErrorException(error)
+            this.logger.error('Error en registerUser', error);
+            if (error instanceof HttpException) throw error;
+
+            throw new InternalServerErrorException('Error interno del servidor');
         }
     }
 
+    async loginUserEmail(loginByEmailDto: LoginUserByEmailDto) {
+        const { userEmail, userPassword } = loginByEmailDto;
+
+        try {
+            const user = await this.user.findUnique({
+                where: { user_email: userEmail }
+            });
+
+            if (!user) {
+                throw new ForbiddenException('El correo no existe');
+            }
+
+            const isPasswordValid = bcrypt.compareSync(userPassword, user.user_password);
+
+            if (!isPasswordValid) {
+                throw new ForbiddenException('La contraseña es incorrecta');
+            }
+
+            const { user_password: ___, ...rest } = user;
+
+            return {
+                user: rest,
+                token: 'Abc123Token',
+            };
+
+        } catch (error) {
+            this.logger.error('Error en loginUserEmail', error);
+            if (error instanceof HttpException) throw error;
+
+            throw new InternalServerErrorException('Error interno del servidor');
+        }
+    }
 }
