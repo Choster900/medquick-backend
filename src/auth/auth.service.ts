@@ -8,13 +8,23 @@ import {
     ConflictException,
 } from '@nestjs/common';
 
+import { JwtService } from '@nestjs/jwt';
+
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { LoginUserByEmailDto, RegisterUserDto } from './dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService extends PrismaClient implements OnModuleInit {
+
+    constructor(
+        private readonly jwtService: JwtService
+    ) {
+        super();
+    }
+
 
     private readonly logger = new Logger('AuthService');
 
@@ -63,7 +73,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
             return {
                 user: newUser,
-                token: 'Abc123Token',
+                token: this.getJwtToken({ userEmail: newUser.user_email }),
             };
 
         } catch (error) {
@@ -96,7 +106,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
             return {
                 user: rest,
-                token: 'Abc123Token',
+                token: this.getJwtToken({ userEmail: user.user_email }),
             };
 
         } catch (error) {
@@ -105,5 +115,13 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
             throw new InternalServerErrorException('Error interno del servidor');
         }
+    }
+
+    private getJwtToken(payload: JwtPayload) {
+
+        const token = this.jwtService.sign(payload)
+
+        return token
+
     }
 }
