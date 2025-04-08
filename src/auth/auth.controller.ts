@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto';
 import { LoginUserByEmailDto } from './dto/login-user-email.dto';
@@ -15,6 +17,17 @@ export class AuthController {
     @Post('loginByEmail')
     loginByEmail(@Body() loginByEmailDto: LoginUserByEmailDto) {
         return this.authService.loginUserEmail(loginByEmailDto);
+    }
+
+    @Get('private-route')
+    @UseGuards(AuthGuard('jwt')) // usa 'jwt' explícitamente
+    testingPrivateRoute() {
+
+
+        return {
+            ok: true,
+            message: "estas dentro de la ruta"
+        }
     }
 
 }
