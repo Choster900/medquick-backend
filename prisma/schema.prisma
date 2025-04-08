@@ -5,11 +5,13 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
-  output   = "./node_modules/@prisma/client"
-  // 👇 esto es lo importante
-  binaryTargets = ["native"]
+    provider      = "prisma-client-js"
+    binaryTargets = ["native"]
+}
+
+generator seed {
+    provider = "ts-node"
+    output   = "prisma/seed.ts"
 }
 
 datasource db {
@@ -51,11 +53,4 @@ model user {
     user_address         String
     user_create_at       DateTime    @default(now())
     user_update_at       DateTime    @updatedAt
-}
-
-
-
-generator seed {
-  provider = "ts-node"
-  output   = "prisma/seed.ts"
 }
