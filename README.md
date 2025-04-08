@@ -19,6 +19,10 @@
 ```bash
 npm install
 ```
+Reiniciar base de datos con seeders
+```bash
+npm run seed
+```
 
 ## Compile and run the project
 
