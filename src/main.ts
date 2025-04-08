@@ -27,6 +27,6 @@ async function bootstrap() {
 
 
 
-    logger.log("Backend ready for using PORT: " + envs.PORT)
+    logger.log("Running on port: " + envs.PORT)
 }
 bootstrap();
