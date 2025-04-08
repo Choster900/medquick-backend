@@ -1,17 +1,16 @@
-/*
-  Warnings:
-
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-PRAGMA foreign_keys=off;
-DROP TABLE "User";
-PRAGMA foreign_keys=on;
+-- CreateTable
+CREATE TABLE "user_state" (
+    "user_state_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "user_state_name" TEXT NOT NULL,
+    "user_state_description" TEXT NOT NULL,
+    "user_state_created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "user_state_updated_at" DATETIME NOT NULL
+);
 
 -- CreateTable
 CREATE TABLE "user" (
-    "user_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "user_id" TEXT NOT NULL PRIMARY KEY,
+    "user_state_id" INTEGER,
     "user_gender" TEXT NOT NULL,
     "user_first_name" TEXT NOT NULL,
     "user_second_name" TEXT NOT NULL,
@@ -26,7 +25,8 @@ CREATE TABLE "user" (
     "user_phone_number" TEXT NOT NULL,
     "user_address" TEXT NOT NULL,
     "user_create_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "user_update_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "user_update_at" DATETIME NOT NULL,
+    CONSTRAINT "user_user_state_id_fkey" FOREIGN KEY ("user_state_id") REFERENCES "user_state" ("user_state_id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateIndex
