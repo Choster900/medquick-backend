@@ -14,7 +14,7 @@ export class AuthController {
         return this.authService.registerUser(registerUserDto);
     }
 
-    @Post('loginByEmail')
+    @Post('login-by-email')
     loginByEmail(@Body() loginByEmailDto: LoginUserByEmailDto) {
         return this.authService.loginUserEmail(loginByEmailDto);
     }
