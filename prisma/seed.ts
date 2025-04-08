@@ -4,10 +4,13 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
+
     // Elimina todos los registros (importante: respetar el orden por relaciones)
     await prisma.user.deleteMany();
     await prisma.user_state.deleteMany();
+    await prisma.institution.deleteMany(); // Elimina todas las instituciones
     await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence WHERE name = 'user_state';`);
+    await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence WHERE name = 'institution';`);
 
     // Fecha actual formateada
     const now = new Date();
@@ -72,6 +75,48 @@ async function main() {
             user_address: 'San Salvador',
         }
     });
+
+    // Crea instituciones de ejemplo
+    await prisma.institution.createMany({
+        data: [
+            {
+                institution_name: 'Ministerio de Salud',
+                institution_acronym: 'MINSAl',  // Acrónimo
+                institution_description: 'Institución gubernamental encargada de la salud pública y servicios médicos nacionales.',
+                institution_created_at: now,
+                institution_updated_at: now,
+            },
+            {
+                institution_name: 'Hospital General de El Salvador',
+                institution_acronym: 'HGES',  // Acrónimo
+                institution_description: 'Centro hospitalario especializado en atención médica de emergencia y servicios generales de salud.',
+                institution_created_at: now,
+                institution_updated_at: now,
+            },
+            {
+                institution_name: 'Instituto Salvadoreño del Seguro Social',
+                institution_acronym: 'ISSS',  // Acrónimo
+                institution_description: 'Institución dedicada a la atención médica, prestaciones y servicios a los afiliados al seguro social.',
+                institution_created_at: now,
+                institution_updated_at: now,
+            },
+            {
+                institution_name: 'Escuela de Medicina de la Universidad de El Salvador',
+                institution_acronym: 'UMES',  // Acrónimo
+                institution_description: 'Facultad académica dedicada a la formación de profesionales médicos en El Salvador.',
+                institution_created_at: now,
+                institution_updated_at: now,
+            },
+            {
+                institution_name: 'Clinica Oftalmológica San Salvador',
+                institution_acronym: 'COSSAL',  // Acrónimo
+                institution_description: 'Clínica especializada en el diagnóstico y tratamiento de enfermedades oculares.',
+                institution_created_at: now,
+                institution_updated_at: now,
+            },
+        ],
+    });
+
 
     console.log('✨ Seed ejecutado correctamente!');
 }
