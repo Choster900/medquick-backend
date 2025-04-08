@@ -40,20 +40,13 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             userPhoneNumber, userAddress,
             userFirstName, userSecondName,
             userThirdName, userFirstLastname,
-            userEmail, userStateId, userGender,
+            userEmail, userGender,
             userPassword, userDui, userBirthdate,
             userSecondLastname, userThirdLastname,
         } = registerUserDto;
 
         try {
-            const userState = await this.user_state.findUnique({
-                where: { user_state_id: userStateId },
-            });
-
-            if (!userState) {
-                throw new NotFoundException('El estado de usuario especificado no existe');
-            }
-
+ 
             const existingUser = await this.user.findUnique({
                 where: { user_email: userEmail }
             });
@@ -72,7 +65,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
             const newUser = await this.user.create({
                 data: {
-                    user_state_id: userStateId,
+                    user_state_id: 1,
                     user_gender: userGender,
                     user_first_name: userFirstName,
                     user_second_name: userSecondName,

@@ -16,13 +16,9 @@ export class RegisterUserDto {
 
     // TODO: Agregar los campos faltantes de otras tablas en el futuro
 
-    @IsNumber()
-    @Min(1)
-    userStateId: number;
-
     @IsEnum(GenderList, {
         message: 'El género debe ser MALE o FEMALE',
-    })
+    })  
     userGender: Gender;
 
     @IsString({ message: 'El primer nombre debe ser una cadena de texto' })
