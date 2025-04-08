@@ -5,7 +5,11 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+  output   = "./node_modules/@prisma/client"
+  // 👇 esto es lo importante
+  binaryTargets = ["native"]
 }
 
 datasource db {
@@ -18,8 +22,20 @@ enum Gender {
     FEMALE
 }
 
+model user_state {
+    user_state_id          Int      @id @default(autoincrement())
+    user_state_name        String
+    user_state_description String
+    user_state_created_at  DateTime @default(now())
+    user_state_updated_at  DateTime @updatedAt
+
+    user user[]
+}
+
 model user {
-    user_id              Int      @id @default(autoincrement())
+    user_id              String      @id @default(uuid())
+    user_state           user_state? @relation(fields: [user_state_id], references: [user_state_id])
+    user_state_id        Int?
     user_gender          Gender
     user_first_name      String
     user_second_name     String
@@ -27,12 +43,19 @@ model user {
     user_first_lastname  String
     user_second_lastname String
     user_third_lastname  String
-    user_email           String   @unique
+    user_email           String      @unique
     user_password        String
-    user_dui             String   @unique
+    user_dui             String      @unique
     user_birthdate       DateTime
     user_phone_number    String
     user_address         String
-    user_create_at       DateTime @default(now())
-    user_update_at       DateTime @default(now())
+    user_create_at       DateTime    @default(now())
+    user_update_at       DateTime    @updatedAt
+}
+
+
+
+generator seed {
+  provider = "ts-node"
+  output   = "prisma/seed.ts"
 }
