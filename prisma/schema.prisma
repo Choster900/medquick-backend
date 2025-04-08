@@ -59,7 +59,8 @@ model user {
 
 model institution {
     institution_id          String   @id @default(uuid())
-    institution_name        String
+    institution_name        String   @unique
+    institution_acronym     String   @unique
     institution_description String?
     institution_created_at  DateTime @default(now())
     institution_updated_at  DateTime @updatedAt
