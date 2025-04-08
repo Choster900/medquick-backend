@@ -3,6 +3,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { envs } from './config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
 
@@ -23,6 +24,14 @@ async function bootstrap() {
             },
         }),
     );
+
+    const config = new DocumentBuilder()
+        .setTitle('MedQuick Doc')
+        .setVersion('1.0')
+        .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('swagger/doc', app, documentFactory);
+
     await app.listen(envs.PORT);
 
 
