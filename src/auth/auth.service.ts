@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 
 import { LoginUserByEmailDto, RegisterUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { buildErrorResponse } from 'src/common/helpers/error-response';
 
 @Injectable()
 export class AuthService extends PrismaClient implements OnModuleInit {
@@ -46,7 +47,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
         } = registerUserDto;
 
         try {
- 
+
             const existingUser = await this.user.findUnique({
                 where: { user_email: userEmail }
             });
@@ -122,9 +123,11 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
         } catch (error) {
             this.logger.error('Error en loginUserEmail', error);
+
+            // Si es una excepción HTTP, se lanza
             if (error instanceof HttpException) throw error;
 
-            throw new InternalServerErrorException('Error interno del servidor');
+            return buildErrorResponse('Error interno del servidor', 500);
         }
     }
 

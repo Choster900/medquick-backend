@@ -5,30 +5,30 @@ import { UpdateInstitutionDto } from './dto/update-institution.dto';
 
 @Controller('institutions')
 export class InstitutionsController {
-  constructor(private readonly institutionsService: InstitutionsService) {}
+    constructor(private readonly institutionsService: InstitutionsService) { }
 
-  @Post()
-  create(@Body() createInstitutionDto: CreateInstitutionDto) {
-    return this.institutionsService.create(createInstitutionDto);
-  }
+    @Post()
+    create(@Body() createInstitutionDto: CreateInstitutionDto) {
+        return this.institutionsService.create(createInstitutionDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.institutionsService.findAll();
-  }
+    @Get()
+    findAll() {
+        return this.institutionsService.findAll();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.institutionsService.findOne(+id);
-  }
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.institutionsService.findOne(id);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInstitutionDto: UpdateInstitutionDto) {
-    return this.institutionsService.update(+id, updateInstitutionDto);
-  }
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateInstitutionDto: UpdateInstitutionDto) {
+        return this.institutionsService.update(id, updateInstitutionDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.institutionsService.remove(+id);
-  }
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.institutionsService.remove(id);
+    }
 }

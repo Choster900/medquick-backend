@@ -9,10 +9,12 @@ generator client {
     binaryTargets = ["native"]
 }
 
-generator seed {
-    provider = "ts-node"
-    output   = "prisma/seed.ts"
-}
+/**
+ * generator seed {
+ * provider = "ts-node"
+ * output   = "prisma/seed.ts"
+ * }
+ */
 
 datasource db {
     provider = "sqlite"
@@ -53,4 +55,26 @@ model user {
     user_address         String
     user_create_at       DateTime    @default(now())
     user_update_at       DateTime    @updatedAt
+}
+
+model institution {
+    institution_id          String   @id @default(uuid())
+    institution_name        String
+    institution_description String?
+    institution_created_at  DateTime @default(now())
+    institution_updated_at  DateTime @updatedAt
+
+    branch branch[]
+}
+
+model branch {
+    branch_id          String      @id @default(uuid())
+    institution        institution @relation(fields: [institution_id], references: [institution_id])
+    institution_id     String
+    branch_name        String
+    branch_longitude   String?
+    branch_latitude    String?
+    branch_description String?
+    branch_created_at  DateTime    @default(now())
+    branch_updated_at  DateTime    @updatedAt
 }
