@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, user } from "@prisma/client";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) implements OnModuleI
         await this.prisma.$connect();
     }
 
-    async validate(payload: JwtPayload): Promise<User> {
+    async validate(payload: JwtPayload): Promise<user> {
 
         const { userEmail } = payload
 
