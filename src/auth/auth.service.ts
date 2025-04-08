@@ -17,6 +17,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginUserByEmailDto, RegisterUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { buildErrorResponse } from 'src/common/helpers/error-response';
+import { buildSuccessResponse } from 'src/common/helpers/success-response';
 
 @Injectable()
 export class AuthService extends PrismaClient implements OnModuleInit {
@@ -83,10 +84,10 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-            return {
+            return buildSuccessResponse({
                 user: newUser,
                 token: this.getJwtToken({ userEmail: newUser.user_email }),
-            };
+            })
 
         } catch (error) {
             this.logger.error('Error en registerUser', error);
