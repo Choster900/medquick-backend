@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 
 import { CreateInstitutionDto } from './dto/create-institution.dto';
 import { UpdateInstitutionDto } from './dto/update-institution.dto';
@@ -17,10 +17,25 @@ export class InstitutionsService extends PrismaClient implements OnModuleInit {
     async create(createInstitutionDto: CreateInstitutionDto) {
 
         try {
-            const { institutionDescription, institutionName } = createInstitutionDto
+            const { institutionDescription, institutionName, institutionAcronym } = createInstitutionDto
+
+            // Check if institution name or acronym already exists
+            const existingInstitution = await this.institution.findFirst({
+                where: {
+                    OR: [
+                        { institution_name: institutionName },
+                        { institution_acronym: institutionAcronym },
+                    ],
+                },
+            });
+
+            if (existingInstitution) {
+                throw new ForbiddenException('El nombre o acrónimo de la institución ya existe');
+            }
 
             const institution = await this.institution.create({
                 data: {
+                    institution_acronym: institutionAcronym,
                     institution_name: institutionName,
                     institution_description: institutionDescription
                 }
@@ -29,10 +44,11 @@ export class InstitutionsService extends PrismaClient implements OnModuleInit {
             return buildSuccessResponse(institution)
         } catch (error) {
 
-            return buildErrorResponse('Error interno del servidor', 500);
+            if (error instanceof HttpException) throw error;
+
+            return buildErrorResponse('Error interno del servidor', error, 500);
 
         }
-
 
 
     }
@@ -64,21 +80,47 @@ export class InstitutionsService extends PrismaClient implements OnModuleInit {
 
     async update(id: string, updateInstitutionDto: UpdateInstitutionDto) {
         try {
-            const { institutionDescription, institutionName } = updateInstitutionDto;
+            const { institutionDescription, institutionName, institutionAcronym } = updateInstitutionDto;
+
+            // Buscar si existe otra institución (distinta al id actual) con el mismo nombre o acrónimo
+            const conflictInstitution = await this.institution.findFirst({
+                where: {
+                    AND: [
+                        {
+                            OR: [
+                                { institution_name: institutionName },
+                                { institution_acronym: institutionAcronym },
+                            ],
+                        },
+                        {
+                            NOT: { institution_id: id },
+                        },
+                    ],
+                },
+            });
+
+            if (conflictInstitution) {
+                throw new ForbiddenException('Ya existe otra institución con el mismo nombre o acrónimo');
+            }
 
             const updatedInstitution = await this.institution.update({
                 where: { institution_id: id },
                 data: {
                     institution_name: institutionName,
+                    institution_acronym: institutionAcronym,
                     institution_description: institutionDescription,
+                    institution_updated_at: new Date(),
                 },
             });
 
-            return buildSuccessResponse(updatedInstitution);
+            return buildSuccessResponse(updatedInstitution, 'Institución actualizada con éxito');
         } catch (error) {
-            return buildErrorResponse('Error interno del servidor', 500);
+            if (error instanceof HttpException) throw error;
+
+            return buildErrorResponse('Error interno del servidor', error, 500);
         }
     }
+
 
     async remove(id: string) {
         try {
