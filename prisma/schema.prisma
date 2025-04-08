@@ -18,7 +18,7 @@ enum Gender {
     FEMALE
 }
 
-model User {
+model user {
     user_id              Int      @id @default(autoincrement())
     user_gender          Gender
     user_first_name      String
