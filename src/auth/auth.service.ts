@@ -6,6 +6,7 @@ import {
     OnModuleInit,
     ForbiddenException,
     ConflictException,
+    NotFoundException,
 } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
@@ -36,15 +37,23 @@ export class AuthService extends PrismaClient implements OnModuleInit {
     async registerUser(registerUserDto: RegisterUserDto) {
 
         const {
-            userEmail, userGender,
             userPhoneNumber, userAddress,
             userFirstName, userSecondName,
             userThirdName, userFirstLastname,
+            userEmail, userStateId, userGender,
             userPassword, userDui, userBirthdate,
             userSecondLastname, userThirdLastname,
         } = registerUserDto;
 
         try {
+            const userState = await this.user_state.findUnique({
+                where: { user_state_id: userStateId },
+            });
+
+            if (!userState) {
+                throw new NotFoundException('El estado de usuario especificado no existe');
+            }
+
             const existingUser = await this.user.findUnique({
                 where: { user_email: userEmail }
             });
@@ -53,8 +62,17 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                 throw new ConflictException('El correo del usuario ya está registrado');
             }
 
+            const existingDui = await this.user.findUnique({
+                where: { user_dui: userDui },
+            });
+
+            if (existingDui) {
+                throw new ConflictException('El DUI del usuario ya está registrado');
+            }
+
             const newUser = await this.user.create({
                 data: {
+                    user_state_id: userStateId,
                     user_gender: userGender,
                     user_first_name: userFirstName,
                     user_second_name: userSecondName,
