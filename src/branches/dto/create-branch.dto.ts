@@ -1,24 +1,36 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsDateString, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateBranchDto {
 
     @IsUUID()
     @IsNotEmpty()
-    institution_id: string;
+    institutionId: string;
 
     @IsString()
     @IsNotEmpty()
-    branch_name: string;
+    branchName: string;
+
+    @IsString()
+    @IsNotEmpty()
+    branchAcronym: string;
 
     @IsString()
     @IsOptional()
-    branch_longitude?: string;
+    branchLongitude?: string;
 
     @IsString()
     @IsOptional()
-    branch_latitude?: string;
+    branchLatitude?: string;
 
     @IsString()
     @IsOptional()
-    branch_description?: string;
+    branchFullAddress?: string;
+
+    @IsString()
+    @IsOptional()
+    branchDescription?: string;
+
+
+
+
 }

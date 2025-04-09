@@ -124,13 +124,17 @@ export class InstitutionsService extends PrismaClient implements OnModuleInit {
 
     async remove(id: string) {
         try {
-            const deletedInstitution = await this.institution.delete({
+            const updatedInstitution = await this.institution.update({
                 where: { institution_id: id },
+                data: {
+                    institution_status: false,
+                    institution_updated_at: new Date(),
+                },
             });
 
-            return buildSuccessResponse(deletedInstitution);
+            return buildSuccessResponse(updatedInstitution, 'Institución desactivada con éxito');
         } catch (error) {
-            return buildErrorResponse('Error interno del servidor', 500);
+            return buildErrorResponse('Error interno del servidor', error, 500);
         }
     }
 }

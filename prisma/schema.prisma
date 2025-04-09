@@ -62,6 +62,7 @@ model institution {
     institution_name        String   @unique
     institution_acronym     String   @unique
     institution_description String?
+    institution_status      Boolean  @default(true)
     institution_created_at  DateTime @default(now())
     institution_updated_at  DateTime @updatedAt
 
@@ -69,13 +70,16 @@ model institution {
 }
 
 model branch {
-    branch_id          String      @id @default(uuid())
-    institution        institution @relation(fields: [institution_id], references: [institution_id])
-    institution_id     String
-    branch_name        String
-    branch_longitude   String?
-    branch_latitude    String?
-    branch_description String?
-    branch_created_at  DateTime    @default(now())
-    branch_updated_at  DateTime    @updatedAt
+    branch_id           String      @id @default(uuid())
+    institution         institution @relation(fields: [institution_id], references: [institution_id])
+    institution_id      String
+    branch_name         String
+    branch_acronym      String
+    branch_description  String
+    branch_longitude    String?
+    branch_latitude     String?
+    branch_full_address String?
+    branch_status       Boolean?    @default(true)
+    branch_created_at   DateTime    @default(now())
+    branch_updated_at   DateTime    @updatedAt
 }
