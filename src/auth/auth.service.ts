@@ -6,11 +6,8 @@ import {
     OnModuleInit,
     ForbiddenException,
     ConflictException,
-    NotFoundException,
 } from '@nestjs/common';
-
 import { JwtService } from '@nestjs/jwt';
-
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 

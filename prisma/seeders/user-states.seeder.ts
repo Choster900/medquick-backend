@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 export async function seedUserStates(prisma: PrismaClient, now: Date) {
+    await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence WHERE name = 'user_state';`);
     await prisma.user_state.createMany({
         data: [
             {
