@@ -37,24 +37,25 @@ model user_state {
 }
 
 model user {
-    user_id              String      @id @default(uuid())
-    user_state           user_state? @relation(fields: [user_state_id], references: [user_state_id])
-    user_state_id        Int?
-    user_gender          Gender
-    user_first_name      String
-    user_second_name     String
-    user_third_name      String
-    user_first_lastname  String
-    user_second_lastname String
-    user_third_lastname  String
-    user_email           String      @unique
-    user_password        String
-    user_dui             String      @unique
-    user_birthdate       DateTime
-    user_phone_number    String
-    user_address         String
-    user_create_at       DateTime    @default(now())
-    user_update_at       DateTime    @updatedAt
+    user_id                  String                     @id @default(uuid())
+    user_state               user_state?                @relation(fields: [user_state_id], references: [user_state_id])
+    user_state_id            Int?
+    user_gender              Gender
+    user_first_name          String
+    user_second_name         String
+    user_third_name          String
+    user_first_lastname      String
+    user_second_lastname     String
+    user_third_lastname      String
+    user_email               String                     @unique
+    user_password            String
+    user_dui                 String                     @unique
+    user_birthdate           DateTime
+    user_phone_number        String
+    user_address             String
+    user_create_at           DateTime                   @default(now())
+    user_update_at           DateTime                   @updatedAt
+    users_branches_specialty users_branches_specialty[]
 }
 
 model institution {
@@ -70,16 +71,75 @@ model institution {
 }
 
 model branch {
-    branch_id           String      @id @default(uuid())
-    institution         institution @relation(fields: [institution_id], references: [institution_id])
-    institution_id      String
-    branch_name         String
-    branch_acronym      String
-    branch_description  String
-    branch_longitude    String?
-    branch_latitude     String?
-    branch_full_address String?
-    branch_status       Boolean?    @default(true)
-    branch_created_at   DateTime    @default(now())
-    branch_updated_at   DateTime    @updatedAt
+    branch_id                String                     @id @default(uuid())
+    institution              institution                @relation(fields: [institution_id], references: [institution_id])
+    institution_id           String
+    branch_name              String
+    branch_acronym           String
+    branch_description       String
+    branch_longitude         String?
+    branch_latitude          String?
+    branch_full_address      String?
+    branch_status            Boolean?                   @default(true)
+    branch_created_at        DateTime                   @default(now())
+    branch_updated_at        DateTime                   @updatedAt
+}
+
+model administration_route {
+    administration_route_id          Int      @id @default(autoincrement())
+    administration_route_name        String
+    administration_route_description String?
+    administration_route_status      Boolean
+    administration_route_created_at  DateTime @default(now())
+    administration_route_updated_at  DateTime @updatedAt
+
+    prescription_item prescription_item[]
+}
+
+model prescription {
+    prescription_id            Int      @id @default(autoincrement())
+    medical_appointment_id     Int
+    //TODO: medical_appointment        medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id])
+    prescription_notes         String?
+    prescription_fecha_emision DateTime
+    prescription_created_at    DateTime @default(now())
+    prescription_updated_at    DateTime @updatedAt
+
+    prescription_item prescription_item[]
+}
+
+model prescription_item {
+    prescription_item_id              Int                   @id @default(autoincrement())
+    prescription                      prescription?         @relation(fields: [prescription_id], references: [prescription_id])
+    prescription_id                   Int?
+    administration_route              administration_route? @relation(fields: [administration_route_id], references: [administration_route_id])
+    administration_route_id           Int?
+    prescription_item_medication_name String
+    prescription_item_dosage          String?
+    prescription_item_frequency       String?
+    prescription_item_duration        String?
+    prescription_item_unit            String?
+    prescription_item_item_notes      String?
+    prescription_item_created_at      DateTime              @default(now())
+    prescription_item_updated_at      DateTime              @updatedAt
+}
+
+model specialty {
+    specialty_id         Int      @id @default(autoincrement())
+    specialty_name       String
+    specialt_description String?
+    specialty_created_at DateTime @default(now())
+    specialty_update_at  DateTime @updatedAt
+
+    users_branches_specialty users_branches_specialty[]
+}
+
+model users_branches_specialty {
+    users_branches_specialty_id         Int       @id @default(autoincrement())
+    user                                user      @relation(fields: [users_id], references: [user_id])
+    users_id                            String
+    specialty                           specialty @relation(fields: [specialty_id], references: [specialty_id])
+    specialty_id                        Int
+    users_branches_specialty_created_at DateTime  @default(now())
+    users_branches_specialty_update_at  DateTime  @updatedAt
 }
