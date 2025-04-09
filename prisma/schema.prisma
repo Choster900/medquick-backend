@@ -71,18 +71,18 @@ model institution {
 }
 
 model branch {
-    branch_id                String                     @id @default(uuid())
-    institution              institution                @relation(fields: [institution_id], references: [institution_id])
-    institution_id           String
-    branch_name              String
-    branch_acronym           String
-    branch_description       String
-    branch_longitude         String?
-    branch_latitude          String?
-    branch_full_address      String?
-    branch_status            Boolean?                   @default(true)
-    branch_created_at        DateTime                   @default(now())
-    branch_updated_at        DateTime                   @updatedAt
+    branch_id           String      @id @default(uuid())
+    institution         institution @relation(fields: [institution_id], references: [institution_id])
+    institution_id      String
+    branch_name         String
+    branch_acronym      String
+    branch_description  String
+    branch_longitude    String?
+    branch_latitude     String?
+    branch_full_address String?
+    branch_status       Boolean?    @default(true)
+    branch_created_at   DateTime    @default(now())
+    branch_updated_at   DateTime    @updatedAt
 }
 
 model administration_route {
@@ -128,6 +128,7 @@ model specialty {
     specialty_id         Int      @id @default(autoincrement())
     specialty_name       String
     specialt_description String?
+    specialt_status      Boolean
     specialty_created_at DateTime @default(now())
     specialty_update_at  DateTime @updatedAt
 
@@ -136,8 +137,8 @@ model specialty {
 
 model users_branches_specialty {
     users_branches_specialty_id         Int       @id @default(autoincrement())
-    user                                user      @relation(fields: [users_id], references: [user_id])
-    users_id                            String
+    user                                user      @relation(fields: [user_id], references: [user_id])
+    user_id                            String
     specialty                           specialty @relation(fields: [specialty_id], references: [specialty_id])
     specialty_id                        Int
     users_branches_specialty_created_at DateTime  @default(now())
