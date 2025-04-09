@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { envs } from './config';
@@ -7,10 +7,15 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
 
-    const logger = new Logger('Main App');
+    const logger = new Logger('MainApp', { timestamp: true });
 
 
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        logger: new ConsoleLogger({
+            prefix: 'Backend', // Default is "Nest"
+        }),
+
+    });
 
     app.setGlobalPrefix('api');
 
