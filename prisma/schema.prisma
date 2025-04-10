@@ -38,7 +38,7 @@ model user_state {
 
 model user {
     user_id                          String                     @id @default(uuid())
-    user_state                       user_state?                @relation(fields: [user_state_id], references: [user_state_id])
+    user_state                       user_state?                @relation(fields: [user_state_id], references: [user_state_id], onDelete: Cascade)
     user_state_id                    Int?
     user_gender                      Gender
     user_first_name                  String
@@ -82,7 +82,7 @@ model institution {
 
 model branch {
     branch_id           String                @id @default(uuid())
-    institution         institution           @relation(fields: [institution_id], references: [institution_id])
+    institution         institution           @relation(fields: [institution_id], references: [institution_id], onDelete: Cascade)
     institution_id      String
     branch_name         String
     branch_acronym      String
@@ -121,9 +121,9 @@ model prescription {
 
 model prescription_item {
     prescription_item_id              Int                   @id @default(autoincrement())
-    prescription                      prescription?         @relation(fields: [prescription_id], references: [prescription_id])
+    prescription                      prescription?         @relation(fields: [prescription_id], references: [prescription_id], onDelete: Cascade)
     prescription_id                   Int?
-    administration_route              administration_route? @relation(fields: [administration_route_id], references: [administration_route_id])
+    administration_route              administration_route? @relation(fields: [administration_route_id], references: [administration_route_id], onDelete: Cascade)
     administration_route_id           Int?
     prescription_item_medication_name String
     prescription_item_dosage          String?
@@ -149,9 +149,9 @@ model specialty {
 
 model users_branches_specialty {
     users_branches_specialty_id         Int       @id @default(autoincrement())
-    user                                user      @relation(fields: [user_id], references: [user_id])
+    user                                user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
     user_id                             String
-    specialty                           specialty @relation(fields: [specialty_id], references: [specialty_id])
+    specialty                           specialty @relation(fields: [specialty_id], references: [specialty_id], onDelete: Cascade)
     specialty_id                        Int
     users_branches_specialty_created_at DateTime  @default(now())
     users_branches_specialty_update_at  DateTime  @updatedAt
@@ -167,9 +167,9 @@ model medical_appointment_state {
 
 model non_registered_patient {
     non_registered_patient_id              Int                   @id @default(autoincrement())
-    legal_representative                   user?                 @relation(fields: [legal_representative_id], references: [user_id])
+    legal_representative                   user?                 @relation(fields: [legal_representative_id], references: [user_id], onDelete: Cascade)
     legal_representative_id                String?
-    relationship_type                      relationship_type?    @relation(fields: [relationship_type_id], references: [relationship_type_id])
+    relationship_type                      relationship_type?    @relation(fields: [relationship_type_id], references: [relationship_type_id], onDelete: Cascade)
     relationship_type_id                   Int?
     non_registered_patient_gender          Gender
     non_registered_patient_first_name      String
@@ -202,9 +202,9 @@ model medical_appointment {
     medical_appointment_id                  Int                       @id @default(autoincrement())
     non_registered_patient                  non_registered_patient?   @relation(fields: [non_registered_patient_id], references: [non_registered_patient_id])
     non_registered_patient_id               Int?
-    patient_user                            user?                     @relation("PatientUser", fields: [patient_user_id], references: [user_id])
+    patient_user                            user?                     @relation("PatientUser", fields: [patient_user_id], references: [user_id], onDelete: Cascade)
     patient_user_id                         String?
-    doctor_user                             user?                     @relation("DoctorUser", fields: [doctor_user_id], references: [user_id])
+    doctor_user                             user?                     @relation("DoctorUser", fields: [doctor_user_id], references: [user_id], onDelete: Cascade)
     doctor_user_id                          String?
     appointment_scheduler                   user                      @relation("AppointmentScheduler", fields: [appointment_scheduler_id], references: [user_id])
     appointment_scheduler_id                String
@@ -225,9 +225,9 @@ model medical_appointment {
 
 model medical_exam {
     medical_exam_id           Int                 @id @default(autoincrement())
-    medical_appointment       medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id])
+    medical_appointment       medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id], onDelete: Cascade)
     medical_appointment_id    Int
-    file_type                 file_type           @relation(fields: [medical_exam_type_file_id], references: [file_type_id])
+    file_type                 file_type           @relation(fields: [medical_exam_type_file_id], references: [file_type_id], onDelete: Cascade)
     medical_exam_type_file_id Int
     medical_exam_name_file    String
     medical_exam_path         String?
@@ -251,9 +251,9 @@ model file_type {
 
 model branch_comment {
     branch_comment_id         Int      @id @default(autoincrement())
-    user                      user     @relation(fields: [user_id], references: [user_id])
+    user                      user     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
     user_id                   String
-    branch                    branch   @relation(fields: [branch_id], references: [branch_id])
+    branch                    branch   @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade)
     branch_id                 String
     branch_comment_comment    String
     branch_comment_rating     Float    @default(5.0)
@@ -263,9 +263,9 @@ model branch_comment {
 
 model medical_comment {
     medical_comment_id         Int      @id @default(autoincrement())
-    user                       user     @relation("CommentUser", fields: [user_id], references: [user_id])
+    user                       user     @relation("CommentUser", fields: [user_id], references: [user_id], onDelete: Cascade)
     user_id                    String
-    doctor                     user     @relation("CommentDoctor", fields: [id_medico], references: [user_id])
+    doctor                     user     @relation("CommentDoctor", fields: [id_medico], references: [user_id], onDelete: Cascade)
     id_medico                  String
     medical_comment_comment    String
     medical_comment_rating     Float    @default(5.0)
@@ -275,9 +275,9 @@ model medical_comment {
 
 model chat {
     chat_id         Int      @id @default(autoincrement())
-    chat_user       user     @relation("ChatUser", fields: [chat_user_id], references: [user_id])
+    chat_user       user     @relation("ChatUser", fields: [chat_user_id], references: [user_id], onDelete: Cascade)
     chat_user_id    String
-    chat_doctor     user     @relation("ChatDoctor", fields: [chat_doctor_id], references: [user_id])
+    chat_doctor     user     @relation("ChatDoctor", fields: [chat_doctor_id], references: [user_id], onDelete: Cascade)
     chat_doctor_id  String
     chat_created_at DateTime @default(now())
     chat_updated_at DateTime @updatedAt
@@ -287,14 +287,14 @@ model chat {
 
 model message {
     message_id         Int            @id @default(autoincrement())
-    message_user       user           @relation(fields: [message_user_id], references: [user_id])
+    message_user       user           @relation(fields: [message_user_id], references: [user_id], onDelete: Cascade)
     message_user_id    String
-    message_chat       chat           @relation(fields: [message_chat_id], references: [chat_id])
+    message_chat       chat           @relation(fields: [message_chat_id], references: [chat_id], onDelete: Cascade)
     message_chat_id    Int
     message_content    String
     message_file_type  String?
     message_file_path  String?
-    message_status     message_status @relation(fields: [message_status_id], references: [message_status_id])
+    message_status     message_status @relation(fields: [message_status_id], references: [message_status_id], onDelete: Cascade)
     message_status_id  Int
     message_created_at DateTime       @default(now())
     message_updated_at DateTime       @updatedAt
