@@ -12,6 +12,7 @@ import {
     seedAdministrationRoutes,
     seedSecurityPermisoProfiles,
     seedMedicalAppointmentStates,
+    seedSpecialities,
 } from './seeders';
 
 const prisma = new PrismaClient();
@@ -32,6 +33,7 @@ async function main() {
     await seedInstitutions(prisma, now);
     await seedBranches(prisma, now);
     await seedUsers(prisma);
+    await seedSpecialities(prisma)
 
     // === Seguridad ===
     await seedSecurityPermissions(prisma);
