@@ -66,6 +66,7 @@ model user {
     chat                             chat[]                     @relation("ChatUser")
     chat_as_doctor                   chat[]                     @relation("ChatDoctor")
     message                          message[]
+    auth_user_profile                auth_user_profile[]
 }
 
 model institution {
@@ -109,12 +110,13 @@ model administration_route {
 }
 
 model prescription {
-    prescription_id            Int      @id @default(autoincrement())
+    prescription_id            Int                 @id @default(autoincrement())
+    medical_appointment        medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id], onDelete: Cascade)
     medical_appointment_id     Int
     prescription_notes         String?
     prescription_fecha_emision DateTime
-    prescription_created_at    DateTime @default(now())
-    prescription_updated_at    DateTime @updatedAt
+    prescription_created_at    DateTime            @default(now())
+    prescription_updated_at    DateTime            @updatedAt
 
     prescription_item prescription_item[]
 }
@@ -221,6 +223,7 @@ model medical_appointment {
     medical_appointment_updated_at          DateTime                  @updatedAt
 
     medical_exam medical_exam[]
+    prescription prescription[]
 }
 
 model medical_exam {
@@ -307,4 +310,43 @@ model message_status {
     message_status_updated_at  DateTime @updatedAt
 
     message message[]
+}
+
+model auth_user_profile {
+    auth_user_profile_id          Int              @id @default(autoincrement())
+    security_profile              security_profile @relation(fields: [security_profile_id], references: [security_profile_id], onDelete: Cascade)
+    security_profile_id           Int
+    user                          user             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+    user_id                       String
+    auth_user_profile_created_at  DateTime         @default(now())
+    auth_user_profile_modified_at DateTime         @updatedAt
+}
+
+model security_profile {
+    security_profile_id                  Int                        @id @default(autoincrement())
+    security_profile_profile_name        String
+    security_profile_profile_description String
+    security_profile_created_at          DateTime                   @default(now())
+    security_profile_modified_at         DateTime                   @updatedAt
+    auth_user_profile                    auth_user_profile[]
+    security_permiso_profile             security_permiso_profile[]
+}
+
+model security_permiso_profile {
+    security_permiso_profile_id         Int                 @id @default(autoincrement())
+    security_permission_id              Int
+    security_permission                 security_permission @relation(fields: [security_permission_id], references: [security_permission_id], onDelete: Cascade)
+    security_profile_id                 Int
+    security_profile                    security_profile    @relation(fields: [security_profile_id], references: [security_profile_id], onDelete: Cascade)
+    security_permiso_profile_created_at DateTime            @default(now())
+}
+
+model security_permission {
+    security_permission_id              Int      @id @default(autoincrement())
+    security_permission_permission_name String
+    security_permission_permission_code String
+    security_permission_created_at      DateTime @default(now())
+    security_permission_modified_at     DateTime @updatedAt
+
+    security_permiso_profile security_permiso_profile[]
 }
