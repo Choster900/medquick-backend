@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class AppointmentsService {
-  create(createAppointmentDto: CreateAppointmentDto) {
-    return 'This action adds a new appointment';
-  }
+export class AppointmentsService extends PrismaClient implements OnModuleInit {
 
-  findAll() {
-    return `This action returns all appointments`;
-  }
+    onModuleInit() {
+        this.$connect()
+    }
+    async create(createAppointmentDto: CreateAppointmentDto) {
 
-  findOne(id: number) {
-    return `This action returns a #${id} appointment`;
-  }
+        const {
+            nonRegisteredPatientId,
+            patientUserId,
+            doctorUserId,
+            appointmentSchedulerId,
+            branchId,
+            specialtyId,
+            medicalAppointmentStateId,
+            medicalAppointmentDateTime,
+            medicalAppointmentCancellationReason,
+            medicalAppointmentNotes
+        } = createAppointmentDto
 
-  update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
-    return `This action updates a #${id} appointment`;
-  }
+        const appointment = await this.medical_appointment.create({
+            data: {
+                non_registered_patient_id: nonRegisteredPatientId,
+                patient_user_id: patientUserId,
+                doctor_user_id: doctorUserId,
+                appointment_scheduler_id: appointmentSchedulerId,
+                branch_id: branchId,
+                specialty_id: specialtyId,
+                medical_appointment_state_id: medicalAppointmentStateId,
+                medical_appointment_date_time: medicalAppointmentDateTime,
+                medical_appointment_cancellation_reason: medicalAppointmentCancellationReason,
+                medical_appointment_notes: medicalAppointmentNotes,
+            },
+        });
+        return appointment;
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} appointment`;
-  }
+    findAll() {
+        return `This action returns all appointments`;
+    }
+
+    findOne(id: number) {
+        return `This action returns a #${id} appointment`;
+    }
+
+    update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
+        return `This action updates a #${id} appointment`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} appointment`;
+    }
 }
