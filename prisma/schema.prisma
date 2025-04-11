@@ -112,7 +112,7 @@ model administration_route {
 model prescription {
     prescription_id            Int                 @id @default(autoincrement())
     medical_appointment        medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id], onDelete: Cascade)
-    medical_appointment_id     Int
+    medical_appointment_id     String
     prescription_notes         String?
     prescription_fecha_emision DateTime
     prescription_created_at    DateTime            @default(now())
@@ -201,22 +201,22 @@ model relationship_type {
 }
 
 model medical_appointment {
-    medical_appointment_id                  Int                       @id @default(autoincrement())
+    medical_appointment_id                  String                    @id @default(uuid())
     non_registered_patient                  non_registered_patient?   @relation(fields: [non_registered_patient_id], references: [non_registered_patient_id])
     non_registered_patient_id               Int?
     patient_user                            user?                     @relation("PatientUser", fields: [patient_user_id], references: [user_id], onDelete: Cascade)
     patient_user_id                         String?
     doctor_user                             user?                     @relation("DoctorUser", fields: [doctor_user_id], references: [user_id], onDelete: Cascade)
     doctor_user_id                          String?
-    appointment_scheduler                   user                      @relation("AppointmentScheduler", fields: [appointment_scheduler_id], references: [user_id])
-    appointment_scheduler_id                String
+    appointment_scheduler                   user?                     @relation("AppointmentScheduler", fields: [appointment_scheduler_id], references: [user_id])
+    appointment_scheduler_id                String?
     branch                                  branch                    @relation(fields: [branch_id], references: [branch_id])
     branch_id                               String
     specialty                               specialty                 @relation(fields: [specialty_id], references: [specialty_id])
     specialty_id                            Int
     medical_appointment_state               medical_appointment_state @relation(fields: [medical_appointment_state_id], references: [medical_appointment_state_id])
     medical_appointment_state_id            Int
-    medical_appointment_date_time           DateTime
+    medical_appointment_date_time           DateTime?
     medical_appointment_cancellation_reason String?
     medical_appointment_notes               String?
     medical_appointment_created_at          DateTime                  @default(now())
@@ -229,7 +229,7 @@ model medical_appointment {
 model medical_exam {
     medical_exam_id           Int                 @id @default(autoincrement())
     medical_appointment       medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id], onDelete: Cascade)
-    medical_appointment_id    Int
+    medical_appointment_id    String
     file_type                 file_type           @relation(fields: [medical_exam_type_file_id], references: [file_type_id], onDelete: Cascade)
     medical_exam_type_file_id Int
     medical_exam_name_file    String
