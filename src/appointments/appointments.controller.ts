@@ -34,8 +34,8 @@ export class AppointmentsController {
     }
 
     @Patch('schedule/:medicalAppointmentId')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('SUPER_ADMI')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     schedule(
         @Param('medicalAppointmentId') medicalAppointmentId: string,
         @Body() scheduleAppointmentDto: ScheduleAppointmentDto,
