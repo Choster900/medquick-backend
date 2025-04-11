@@ -14,6 +14,7 @@ import {
     seedMedicalAppointmentStates,
     seedSpecialities,
 } from './seeders';
+import { seedAuthUserProfile } from './seeders/auth-user-profile.seede';
 
 const prisma = new PrismaClient();
 
@@ -39,6 +40,7 @@ async function main() {
     await seedSecurityPermissions(prisma);
     await seedSecurityProfiles(prisma);
     await seedSecurityPermisoProfiles(prisma);
+    await seedAuthUserProfile(prisma, now);
 
     console.log('✅ Seed ejecutado correctamente.');
 }

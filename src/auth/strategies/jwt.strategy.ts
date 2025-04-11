@@ -34,7 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) implements OnModuleI
         });
 
         if (!user)
-            throw new UnauthorizedException('Token not valid');
+            throw new UnauthorizedException('No se ha proporcionado un token valido');
 
 
         return user;
