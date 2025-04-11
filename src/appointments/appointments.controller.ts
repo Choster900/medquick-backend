@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
-import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+
+import { CreateAppointmentDto, FilterAppointmentStateDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
+
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -12,9 +13,24 @@ export class AppointmentsController {
         return this.appointmentsService.create(createAppointmentDto);
     }
 
+    @Get('status/:medicalAppointmentState')
+    findAllByStatus(
+        @Param('medicalAppointmentState', ParseIntPipe) medicalAppointmentState: number
+    ) {
+        return this.appointmentsService.findAllByStatus(medicalAppointmentState);
+    }
+
     @Get()
     findAll() {
         return this.appointmentsService.findAll();
+    }
+
+    @Patch('schedule/:medicalAppointmentId')
+    schedule(
+        @Param('medicalAppointmentId') medicalAppointmentId: string,
+        @Body() scheduleAppointmentDto: ScheduleAppointmentDto
+    ) {
+        return this.appointmentsService.schedule(medicalAppointmentId, scheduleAppointmentDto);
     }
 
     @Get(':id')

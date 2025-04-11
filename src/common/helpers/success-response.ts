@@ -1,5 +1,15 @@
 import { SuccessResponse } from "../interfaces";
-
+/**
+ *
+ *
+ * @export
+ * @template T
+ * @param {T} data
+ * @param {string} [message='Operación realizada con éxito']
+ * @param {number} [code=200]
+ * @param {string} [path]
+ * @return {*}  {SuccessResponse<T>}
+ */
 export function buildSuccessResponse<T>(
     data: T,
     message = 'Operación realizada con éxito',
