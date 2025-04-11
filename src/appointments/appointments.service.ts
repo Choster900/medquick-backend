@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 
 import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
 import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
@@ -53,7 +53,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
         } catch (error) {
             if (error instanceof HttpException) throw error;
 
-            return buildErrorResponse('Error interno del servidor', error, 500);
+            return buildErrorResponse(error.message, error.status, 500);
 
         }
     }
@@ -91,11 +91,11 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             return buildSuccessResponse(appointments, 'Citas obtenidas con éxito');
         } catch (error) {
             if (error instanceof HttpException) throw error;
-            return buildErrorResponse('Error interno del servidor', error, 500);
+            return buildErrorResponse(error.message, error.status, 500);
         }
     }
 
-    async schedule(medicalAppointmentId: string, scheduleAppointmentDto: ScheduleAppointmentDto) {
+    async schedule(medicalAppointmentId: string, scheduleAppointmentDto: ScheduleAppointmentDto, schedulerId: string) {
         try {
             // TODO: Investigar si se puede obtener el jwt del usuario que hace la solicitud
             // Para depues obtener su id y asignarle el appointment_scheduler_id
@@ -123,6 +123,8 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                     medical_appointment_id: medicalAppointmentId,
                 },
                 data: {
+                    appointment_scheduler_id: schedulerId,
+                    medical_appointment_state_id: 2,
                     medical_appointment_date_time: medicalAppointmentDateTime,
                     doctor_user_id: doctorUserId,
                 },

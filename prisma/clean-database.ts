@@ -10,8 +10,10 @@ export async function cleanDatabase(prisma: PrismaClient) {
     await prisma.administration_route.deleteMany();
     await prisma.file_type.deleteMany();
     await prisma.relationship_type.deleteMany();
+    await prisma.auth_user_profile.deleteMany();
     await prisma.security_profile.deleteMany();
     await prisma.security_permission.deleteMany();
     await prisma.security_profile.deleteMany(); 
     await prisma.specialty.deleteMany()
+
 }
