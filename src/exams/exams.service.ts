@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+
+import { join } from 'path';
+import { createReadStream, existsSync } from 'fs';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { UpdateExamDto } from './dto/update-exam.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class ExamsService {
-  create(createExamDto: CreateExamDto) {
-    return 'This action adds a new exam';
-  }
 
-  findAll() {
-    return `This action returns all exams`;
-  }
 
-  findOne(id: number) {
-    return `This action returns a #${id} exam`;
-  }
+    getProtectedImage(imageName: string, res: Response) {
+        const path = join(process.cwd(), 'static', 'exams', imageName);
 
-  update(id: number, updateExamDto: UpdateExamDto) {
-    return `This action updates a #${id} exam`;
-  }
+        if (!existsSync(path)) {
+            throw new BadRequestException('No se encontró la imagen');
+        }
 
-  remove(id: number) {
-    return `This action removes a #${id} exam`;
-  }
+        const stream = createReadStream(path);
+        stream.pipe(res);
+    }
+    create(createExamDto: CreateExamDto) {
+        return 'This action adds a new exam';
+    }
+
+    findAll() {
+        return `This action returns all exams`;
+    }
+
+    findOne(id: number) {
+        return `This action returns a #${id} exam`;
+    }
+
+    update(id: number, updateExamDto: UpdateExamDto) {
+        return `This action updates a #${id} exam`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} exam`;
+    }
 }
