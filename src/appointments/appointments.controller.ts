@@ -32,8 +32,8 @@ export class AppointmentsController {
     }
 
     @Patch('schedule/:medicalAppointmentId')
-    // @Roles('ADMIN')
-    @UseGuards(JwtAuthGuard)
+    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     schedule(
         @Param('medicalAppointmentId') medicalAppointmentId: string,
         @Body() scheduleAppointmentDto: ScheduleAppointmentDto,

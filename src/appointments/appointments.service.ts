@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { ConflictException, HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 
-import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
 import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
-
+import { AppointmentStatusChangeDto } from './interfaces/appointment-status-change.dto';
+import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
 @Injectable()
 export class AppointmentsService extends PrismaClient implements OnModuleInit {
 
@@ -114,6 +114,12 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                 throw new Error('La cita ya fue asignada a un doctor y un horario');
             }
 
+            await this.addAppointmentStatusHistory({
+                medicalAppointmentId,
+                previousStatusId: 1, // Pendiente
+                newStatusId: 2,      // Asignada
+            });
+
             const doctor = await this.user.findUnique({
                 where: { user_id: doctorUserId },
             });
@@ -147,18 +153,23 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
         }
     }
 
-    // TODO implementar
-    private async changeStatusAppointmentHistory(medicalAppointmentId: string, medicalAppointmentStateId: number) {
 
-        const addHistory = await this.appointment_status_history.create({
+
+    private async addAppointmentStatusHistory({
+        medicalAppointmentId,
+        previousStatusId,
+        newStatusId,
+    }: AppointmentStatusChangeDto) {
+        return await this.appointment_status_history.create({
             data: {
-                medical_appointment_id: '',
-                previous_status_id: 1,
-                new_status_id: 2,
-                fecha_hora: new Date()
-            }
-        })
+                medical_appointment_id: medicalAppointmentId,
+                previous_status_id: previousStatusId,
+                new_status_id: newStatusId,
+                fecha_hora: new Date(),
+            },
+        });
     }
+
 
 
     findOne(id: number) {
