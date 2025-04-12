@@ -1,14 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
-import { AppointmentsService } from './appointments.service';
-
-import { CreateAppointmentDto, FilterAppointmentStateDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
-import { User } from 'src/common/decorators/user.decorator';
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { AuthGuard } from '@nestjs/passport';
-import { user } from '@prisma/client';
-import { CurrentUser } from 'src/common/interfaces/current-user.interface';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+
+import { Roles, User } from 'src/common/decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { AppointmentsService } from './appointments.service';
+import { CurrentUser } from 'src/common/interfaces/current-user.interface';
+import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
 
 
 @Controller('appointments')
@@ -34,7 +31,7 @@ export class AppointmentsController {
     }
 
     @Patch('schedule/:medicalAppointmentId')
-    @Roles('SUPER_ADMI')
+    @Roles('ADMIN')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     schedule(
         @Param('medicalAppointmentId') medicalAppointmentId: string,

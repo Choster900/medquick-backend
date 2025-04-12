@@ -95,48 +95,71 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
         }
     }
 
-    async schedule(medicalAppointmentId: string, scheduleAppointmentDto: ScheduleAppointmentDto, schedulerId: string) {
+    async schedule(
+        medicalAppointmentId: string,
+        dto: ScheduleAppointmentDto,
+        schedulerId: string,
+    ) {
         try {
-            // TODO: Investigar si se puede obtener el jwt del usuario que hace la solicitud
-            // Para depues obtener su id y asignarle el appointment_scheduler_id
-            const { doctorUserId, medicalAppointmentDateTime } = scheduleAppointmentDto;
+            const { doctorUserId, medicalAppointmentDateTime } = dto;
 
-            // Validate if the doctor exists
-            const doctorExists = await this.user.findUnique({
+            const existingAppointment = await this.medical_appointment.findFirst({
                 where: {
-                    user_id: doctorUserId,
+                    medical_appointment_id: medicalAppointmentId,
+                    medical_appointment_state_id: 2, // cita ya asignada
                 },
             });
 
-            if (!doctorExists) {
+            if (existingAppointment) {
+                throw new Error('La cita ya fue asignada a un doctor y un horario');
+            }
+
+            const doctor = await this.user.findUnique({
+                where: { user_id: doctorUserId },
+            });
+
+            if (!doctor) {
                 throw new Error('El doctor no existe');
             }
 
-            // Validate if the appointment date time is in the future
-            if (medicalAppointmentDateTime < new Date()) {
+            const now = new Date();
+            if (new Date(medicalAppointmentDateTime) <= now) {
                 throw new Error('La fecha de la cita no puede ser en el pasado');
             }
 
-            // update appointment
             const updatedAppointment = await this.medical_appointment.update({
-                where: {
-                    medical_appointment_id: medicalAppointmentId,
-                },
+                where: { medical_appointment_id: medicalAppointmentId },
                 data: {
-                    appointment_scheduler_id: schedulerId,
-                    medical_appointment_state_id: 2,
-                    medical_appointment_date_time: medicalAppointmentDateTime,
                     doctor_user_id: doctorUserId,
+                    appointment_scheduler_id: schedulerId,
+                    medical_appointment_date_time: medicalAppointmentDateTime,
+                    medical_appointment_state_id: 2, // estado: programada
                 },
             });
 
             return buildSuccessResponse(updatedAppointment, 'Cita programada con éxito');
-
         } catch (error) {
             if (error instanceof HttpException) throw error;
-            return buildErrorResponse(error.message, error.status, 500);
+            return buildErrorResponse(
+                error.message || 'Error interno del servidor',
+                error.status
+            );
         }
     }
+
+    // TODO implementar
+    private async changeStatusAppointmentHistory(medicalAppointmentId: string, medicalAppointmentStateId: number) {
+
+        const addHistory = await this.appointment_status_history.create({
+            data: {
+                medical_appointment_id: '',
+                previous_status_id: 1,
+                new_status_id: 2,
+                fecha_hora: new Date()
+            }
+        })
+    }
+
 
     findOne(id: number) {
         return `This action returns a #${id} appointment`;
