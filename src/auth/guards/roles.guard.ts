@@ -3,6 +3,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { PrismaClient } from '@prisma/client';
 
 import { ROLES_KEY } from './../../common/decorators/roles.decorator';
+import { buildErrorResponse } from 'src/common/helpers';
 
 const prisma = new PrismaClient();
 
@@ -44,7 +45,13 @@ export class RolesGuard implements CanActivate {
         const hasRole = requiredRoles.some(role => userRoles.includes(role));
 
         if (!hasRole) {
-            throw new UnauthorizedException('No tiene los permisos necesarios');
+            throw new UnauthorizedException(
+                buildErrorResponse(
+                    'No tiene los perfiles necesarios',
+                    403,
+                    `Se requieren uno de los siguientes roles: [${requiredRoles.join(', ')}]`,
+                )
+            );
         }
 
         // Opcional: guardar los roles en el objeto user
