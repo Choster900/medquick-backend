@@ -1,12 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Headers, BadRequestException, Res } from '@nestjs/common';
-import { ExamsService } from './exams.service';
-import { CreateExamDto } from './dto/create-exam.dto';
-import { UpdateExamDto } from './dto/update-exam.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileFilter, fileNamer } from './helpers';
-import { diskStorage } from 'multer';
-import { FilesService } from 'src/files/files.service';
+import { Controller, Get, Post, Param, UseInterceptors, UploadedFile, Headers, BadRequestException, Res } from '@nestjs/common';
+
 import { Response } from 'express';
+import { diskStorage } from 'multer';
+
+import { ExamsService } from './exams.service';
+import { fileFilter, fileNamer } from './helpers';
 
 @Controller('exams')
 export class ExamsController {
@@ -18,7 +17,6 @@ export class ExamsController {
     @Post("file")
     @UseInterceptors(FileInterceptor('file', {
         fileFilter: fileFilter,
-        //limits: { fileSize: 1000}
         storage: diskStorage({
             destination: './static/exams',
             filename: fileNamer
@@ -50,30 +48,5 @@ export class ExamsController {
         @Res() res: Response,
     ) {
         return this.examsService.getProtectedImage(imageName, res);
-    }
-
-    @Post()
-    create(@Body() createExamDto: CreateExamDto) {
-        return this.examsService.create(createExamDto);
-    }
-
-    @Get()
-    findAll() {
-        return this.examsService.findAll();
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.examsService.findOne(+id);
-    }
-
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateExamDto: UpdateExamDto) {
-        return this.examsService.update(+id, updateExamDto);
-    }
-
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.examsService.remove(+id);
     }
 }

@@ -14,29 +14,10 @@ export class ExamsService {
         const path = join(process.cwd(), 'static', 'exams', imageName);
 
         if (!existsSync(path)) {
-            throw new BadRequestException('No se encontró la imagen');
+            throw new BadRequestException('No se encontró el archivo');
         }
 
         const stream = createReadStream(path);
         stream.pipe(res);
-    }
-    create(createExamDto: CreateExamDto) {
-        return 'This action adds a new exam';
-    }
-
-    findAll() {
-        return `This action returns all exams`;
-    }
-
-    findOne(id: number) {
-        return `This action returns a #${id} exam`;
-    }
-
-    update(id: number, updateExamDto: UpdateExamDto) {
-        return `This action updates a #${id} exam`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} exam`;
     }
 }
