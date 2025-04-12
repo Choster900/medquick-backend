@@ -57,4 +57,6 @@ export class AppointmentsController {
     remove(@Param('id') id: string) {
         return this.appointmentsService.remove(+id);
     }
+
+    // TODO :  Crear metodo filtrra citas y filtrar citas con prescipçiones / filtrar citas detalle de pacientes etc ( cita detallada, cita general) creo que serian 2 nuevos metodos
 }
