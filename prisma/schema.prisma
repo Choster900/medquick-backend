@@ -160,11 +160,32 @@ model users_branches_specialty {
 }
 
 model medical_appointment_state {
-    medical_appointment_state_id          Int                   @id @default(autoincrement())
+    medical_appointment_state_id          Int      @id @default(autoincrement())
     medical_appointment_state_description String
-    medical_appointment_state_created_at  DateTime              @default(now())
-    medical_appointment_state_updated_at  DateTime              @updatedAt
-    medical_appointment                   medical_appointment[]
+    medical_appointment_state_created_at  DateTime @default(now())
+    medical_appointment_state_updated_at  DateTime @updatedAt
+
+    // Relación con medical_appointment
+    medical_appointment medical_appointment[]
+
+    // Relaciones con appointment_status_history (dos roles distintos)
+    previous_status_history appointment_status_history[] @relation("PreviousStatus")
+    new_status_history      appointment_status_history[] @relation("NewStatus")
+}
+
+model appointment_status_history {
+    appointment_status_history_id Int      @id @default(autoincrement())
+    medical_appointment_id        String
+    previous_status_id            Int
+    new_status_id                 Int
+    fecha_hora                    DateTime @default(now())
+
+    // Relaciones
+    medical_appointment medical_appointment       @relation(fields: [medical_appointment_id], references: [medical_appointment_id])
+    previous_status     medical_appointment_state @relation("PreviousStatus", fields: [previous_status_id], references: [medical_appointment_state_id])
+    new_status          medical_appointment_state @relation("NewStatus", fields: [new_status_id], references: [medical_appointment_state_id])
+
+    @@map("appointment_status_history")
 }
 
 model non_registered_patient {
@@ -222,8 +243,9 @@ model medical_appointment {
     medical_appointment_created_at          DateTime                  @default(now())
     medical_appointment_updated_at          DateTime                  @updatedAt
 
-    medical_exam medical_exam[]
-    prescription prescription[]
+    medical_exam               medical_exam[]
+    prescription               prescription[]
+    appointment_status_history appointment_status_history[]
 }
 
 model medical_exam {
