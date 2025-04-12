@@ -4,6 +4,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe,
 import { Roles, User } from 'src/common/decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AppointmentsService } from './appointments.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
 import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
 
@@ -31,8 +32,8 @@ export class AppointmentsController {
     }
 
     @Patch('schedule/:medicalAppointmentId')
-    @Roles('ADMIN')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard)
     schedule(
         @Param('medicalAppointmentId') medicalAppointmentId: string,
         @Body() scheduleAppointmentDto: ScheduleAppointmentDto,
