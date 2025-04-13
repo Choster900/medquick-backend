@@ -149,7 +149,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             });
 
             if (!user) {
-                throw new Error('El correo no existe');
+                throw new Error('Usuario no encontrado');
             }
 
             const isPasswordValid = bcrypt.compareSync(userPassword, user.user_password);
@@ -176,7 +176,6 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             };
         } catch (error) {
 
-            if (error instanceof HttpException) throw error;
             return buildErrorResponse(
                 error.message || 'Error interno del servidor',
                 error.status
