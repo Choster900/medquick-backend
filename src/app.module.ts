@@ -12,6 +12,7 @@ import { InstitutionsModule } from './institutions/institutions.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { ChatModule } from './chat/chat.module';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { ChatModule } from './chat/chat.module';
         AppointmentsModule,
         PrescriptionsModule,
         ChatModule,
+        NestjsFormDataModule
     ],
     controllers: [],
     providers: [],
