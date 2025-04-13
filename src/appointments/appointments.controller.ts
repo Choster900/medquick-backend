@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, ParseUUIDPipe, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, ParseUUIDPipe, BadRequestException, UseInterceptors, UploadedFile, Headers, UploadedFiles } from '@nestjs/common';
 
 import { Roles, User } from 'src/common/decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -6,15 +6,39 @@ import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
 import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, FindAppointmentsDto, CancelAppointmentDto } from './dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { fileFilter, fileNamer } from 'src/exams/helpers';
+import { diskStorage } from 'multer';
 
 
 @Controller('appointments')
 export class AppointmentsController {
     constructor(private readonly appointmentsService: AppointmentsService) { }
 
-    @Post()
-    create(@Body() createAppointmentDto: CreateAppointmentDto) {
-        return this.appointmentsService.create(createAppointmentDto);
+    @Post() // TODO : Depurar codigo ( improve )
+    @Roles('PACIENTE')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseInterceptors(FilesInterceptor('files', 10, {  // 'files' es el campo en el form-data, y 10 es el límite de archivos
+        fileFilter: fileFilter,
+        storage: diskStorage({
+            destination: './static/exams',
+            filename: fileNamer
+        }),
+    }))
+    create(
+        @UploadedFiles() files: Express.Multer.File[],
+        @Body() createAppointmentDto: CreateAppointmentDto,
+        @Body('comments') comments: string[],
+        @User() user: CurrentUser,
+    ) {
+
+        const combined = files.map((file, index) => ({
+            file,
+            comment: comments?.[index] || null,
+        }));
+        console.log(combined);
+
+        return this.appointmentsService.create(createAppointmentDto, user.user_id, combined);
     }
 
     @Get('status/:medicalAppointmentState')

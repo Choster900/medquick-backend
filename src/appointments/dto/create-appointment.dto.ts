@@ -1,43 +1,23 @@
-import { IsOptional, IsString, IsNumber, IsDate, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsDate, IsNotEmpty, IsUUID, IsArray } from 'class-validator';
+import { Type } from 'class-transformer'; // <-- Asegurate de importar esto
 
 export class CreateAppointmentDto {
-
-
     @IsOptional()
     @IsNumber()
+    @Type(() => Number)
     nonRegisteredPatientId?: number;
-
-    @IsOptional()
-    @IsUUID()
-    patientUserId?: string;
-
-    /* @IsOptional()
-    @IsUUID()
-    doctorUserId?: string; */
-
-   /*  @IsNotEmpty()
-    @IsUUID()
-    appointmentSchedulerId: string; */
 
     @IsNotEmpty()
     @IsUUID()
     branchId: string;
 
     @IsNotEmpty()
+    @IsNumber()
+    @Type(() => Number)
     specialtyId: number;
 
-   /*  @IsNotEmpty()
-    medicalAppointmentStateId: number; */
 
-    /* @IsNotEmpty()
-    @IsDate()
-    medicalAppointmentDateTime: Date; */
+    @IsArray()
+    comments: string[]
 
-   /*  @IsOptional()
-    @IsString()
-    medicalAppointmentCancellationReason?: string; */
-
-    /* @IsOptional()
-    @IsString()
-    medicalAppointmentNotes?: string; */
 }

@@ -11,16 +11,20 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
     onModuleInit() {
         this.$connect()
     }
-    async create(createAppointmentDto: CreateAppointmentDto) {
+
+    async create(
+        createAppointmentDto: CreateAppointmentDto,
+        patientUserId: string,
+        filesWithComments: { file: Express.Multer.File, comment: string | null }[]
+    ) {
         try {
             const {
                 nonRegisteredPatientId,
-                patientUserId,
                 branchId,
                 specialtyId,
             } = createAppointmentDto;
 
-            // Validate if the user exists
+            // Validar si el usuario existe
             const patientExists = await this.user.findUnique({
                 where: {
                     user_id: patientUserId,
@@ -28,9 +32,10 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             });
 
             if (!patientExists) {
-                throw new Error('patient does not exist');
+                throw new Error('Patient does not exist');
             }
-            // Validate if the branch exists
+
+            // Validar si la sucursal existe
             const branchExists = await this.branch.findUnique({
                 where: {
                     branch_id: branchId,
@@ -41,23 +46,55 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                 throw new Error('Branch does not exist');
             }
 
+            // Crear la cita médica
             const appointment = await this.medical_appointment.create({
                 data: {
                     non_registered_patient_id: nonRegisteredPatientId,
                     patient_user_id: patientUserId,
                     branch_id: branchId,
                     specialty_id: specialtyId,
-                    medical_appointment_state_id: 1,
+                    medical_appointment_state_id: 1, // Estado inicial (Pendiente)
                 },
             });
-            return buildSuccessResponse(appointment, 'Cita creada con exito');
+
+            // Subir los exámenes médicos si se proporcionaron archivos
+            for (const { file, comment } of filesWithComments) {
+                const medicalExamTypeFileId = await this.file_type.findFirst({
+                    where: {
+                        file_type_mime_type: file.mimetype
+                    }
+                });
+
+                if (!medicalExamTypeFileId) {
+                    throw new Error('Invalid file type');
+                }
+
+                await this.medical_exam.create({
+                    data: {
+                        medical_appointment_id: appointment.medical_appointment_id,
+                        medical_exam_type_file_id: medicalExamTypeFileId.file_type_id,
+                        medical_exam_name_file: file.filename,
+                        medical_exam_path: file.path,
+                        medical_exam_description: comment ?? 'Sin comentario',
+                        medical_exam_origin_examp: false,
+                        medical_exam_date_up: new Date(),
+                    },
+                });
+            }
+
+
+            // Retornar respuesta de éxito
+            return buildSuccessResponse(appointment, 'Cita creada con éxito');
         } catch (error) {
-            if (error instanceof HttpException) throw error;
+            if (error instanceof HttpException) {
+                throw error;
+            }
 
+            // Manejo de errores
             return buildErrorResponse(error.message, error.status, 500);
-
         }
     }
+
 
     async findAll(findBy: string, id: string) {
         try {
