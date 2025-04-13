@@ -1,4 +1,3 @@
-import { AuthGuard } from '@nestjs/passport';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, ParseUUIDPipe, BadRequestException } from '@nestjs/common';
 
 import { Roles, User } from 'src/common/decorators';
@@ -6,9 +5,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
-import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
-import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
-import { FindAppointmentsDto } from './dto/find-appointments.dto';
+import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, FindAppointmentsDto, CancelAppointmentDto } from './dto';
 
 
 @Controller('appointments')

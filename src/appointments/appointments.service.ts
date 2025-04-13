@@ -3,8 +3,8 @@ import { BadRequestException, HttpException, Injectable, OnModuleInit } from '@n
 
 import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
 import { AppointmentStatusChangeDto } from './interfaces/appointment-status-change.dto';
-import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
-import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
+import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, CancelAppointmentDto } from './dto';
+
 @Injectable()
 export class AppointmentsService extends PrismaClient implements OnModuleInit {
 
