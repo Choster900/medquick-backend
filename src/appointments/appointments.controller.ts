@@ -1,5 +1,5 @@
 import { AuthGuard } from '@nestjs/passport';
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, ParseUUIDPipe } from '@nestjs/common';
 
 import { Roles, User } from 'src/common/decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -7,6 +7,7 @@ import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
 import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
+import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
 
 
 @Controller('appointments')
@@ -44,8 +45,8 @@ export class AppointmentsController {
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.appointmentsService.findOne(+id);
+    findOne(@Param('id', ParseUUIDPipe) id: string) {
+        return this.appointmentsService.findOne(id);
     }
 
     @Patch(':id')
@@ -54,9 +55,9 @@ export class AppointmentsController {
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.appointmentsService.remove(+id);
+    remove(@Param('id', ParseUUIDPipe) id: string, @Body() cancelAppointmentDto: CancelAppointmentDto) {
+        return this.appointmentsService.remove(id, cancelAppointmentDto);
     }
 
-    // TODO :  Crear metodo filtrra citas y filtrar citas con prescipçiones / filtrar citas detalle de pacientes etc ( cita detallada, cita general) creo que serian 2 nuevos metodos
+    // TODO :  Filtrar todas las citas por id usuario y por medico, por institucion y por sucursal
 }
