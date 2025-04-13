@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 
 import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
 import { AppointmentStatusChangeDto } from './interfaces/appointment-status-change.dto';
@@ -59,15 +59,114 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
         }
     }
 
-    async findAll() {
+    async findAll(findBy: string, id: string) {
         try {
-            const appointments = await this.medical_appointment.findMany();
+            let appointments;
+
+            const fullInclude = {
+                doctor_user: {
+                    select: {
+                        user_id: true,
+                        user_first_name: true,
+                        user_second_name: true,
+                        user_third_name: true,
+                        user_first_lastname: true,
+                        user_second_lastname: true,
+                        user_third_lastname: true,
+                        user_email: true,
+                        user_phone_number: true,
+                    },
+                },
+                appointment_scheduler: {
+                    select: {
+                        user_id: true,
+                        user_first_name: true,
+                        user_second_name: true,
+                        user_third_name: true,
+                        user_first_lastname: true,
+                        user_second_lastname: true,
+                        user_third_lastname: true,
+                        user_email: true,
+                        user_phone_number: true,
+                    },
+                },
+                patient_user: {
+                    select: {
+                        user_id: true,
+                        user_first_name: true,
+                        user_second_name: true,
+                        user_third_name: true,
+                        user_first_lastname: true,
+                        user_second_lastname: true,
+                        user_third_lastname: true,
+                        user_email: true,
+                        user_phone_number: true,
+                    },
+                },
+                branch: {
+                    select: {
+                        branch_id: true,
+                        branch_name: true,
+                        branch_acronym: true,
+                        branch_description: true,
+                        branch_full_address: true,
+                        institution: {
+                            select: {
+                                institution_id: true,
+                                institution_name: true,
+                                institution_acronym: true,
+                                institution_description: true,
+                            },
+                        },
+                    },
+                },
+            };
+
+            switch (findBy) {
+                case 'userId':
+                    appointments = await this.medical_appointment.findMany({
+                        where: { patient_user_id: id },
+                        include: fullInclude,
+                    });
+                    break;
+
+                case 'branchId':
+                    appointments = await this.medical_appointment.findMany({
+                        where: { branch_id: id },
+                        include: fullInclude,
+                    });
+                    break;
+
+                case 'doctorUserId':
+                    appointments = await this.medical_appointment.findMany({
+                        where: { doctor_user_id: id },
+                        include: fullInclude,
+                    });
+                    break;
+
+                case 'institutionId':
+                    appointments = await this.medical_appointment.findMany({
+                        where: {
+                            branch: {
+                                institution_id: id,
+                            },
+                        },
+                        include: fullInclude,
+                    });
+                    break;
+
+                default:
+                    throw new BadRequestException('Tipo de filtro inválido');
+            }
+
             return buildSuccessResponse(appointments, 'Citas obtenidas con éxito');
         } catch (error) {
             if (error instanceof HttpException) throw error;
             return buildErrorResponse('Error interno del servidor', error, 500);
         }
     }
+
+
 
     async findAllByStatus(medicalAppointmentState: number) {
         try {
