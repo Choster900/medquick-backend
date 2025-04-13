@@ -1,5 +1,5 @@
 import { AuthGuard } from '@nestjs/passport';
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, ParseUUIDPipe, BadRequestException } from '@nestjs/common';
 
 import { Roles, User } from 'src/common/decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -8,6 +8,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
 import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto } from './dto';
 import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
+import { FindAppointmentsDto } from './dto/find-appointments.dto';
 
 
 @Controller('appointments')
@@ -26,10 +27,18 @@ export class AppointmentsController {
         return this.appointmentsService.findAllByStatus(medicalAppointmentState);
     }
 
-    @Get()
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    findAll() {
-        return this.appointmentsService.findAll();
+    @Get('filter')
+    @UseGuards(JwtAuthGuard)
+    async findAppointments(@Query() query: FindAppointmentsDto) {
+
+        const { userId, branchId, doctorUserId, institutionId } = query;
+
+        if (userId) return this.appointmentsService.findAll('userId', userId);
+        if (branchId) return this.appointmentsService.findAll('branchId', branchId);
+        if (doctorUserId) return this.appointmentsService.findAll('doctorUserId', doctorUserId);
+        if (institutionId) return this.appointmentsService.findAll('institutionId', institutionId);
+
+        throw new BadRequestException('Debe proporcionar al menos un parámetro de filtro [userId,branchId,doctorUserId,institutionId]');
     }
 
     @Patch('schedule/:medicalAppointmentId')
@@ -59,5 +68,4 @@ export class AppointmentsController {
         return this.appointmentsService.remove(id, cancelAppointmentDto);
     }
 
-    // TODO :  Filtrar todas las citas por id usuario y por medico, por institucion y por sucursal
 }
