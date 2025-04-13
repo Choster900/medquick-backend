@@ -25,7 +25,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             payload = this.jwtService.verify(token)
 
-            await this.chatService.registerClient(client, payload.userEmail)
+            await this.chatService.registerClient(client, payload.userId)
 
         } catch (error) {
             client.disconnect()

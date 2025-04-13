@@ -10,7 +10,8 @@ import {
 } from "@nestjs/class-validator";
 import { GenderList } from '../enum/gender.enum';
 import { Gender } from "@prisma/client";
-import { IsNumber, Min } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsInt, IsNumber, Min } from "class-validator";
+import { IsEmailOrDui } from "../validators/email-or-dui-required.validator";
 
 export class RegisterUserDto {
 
@@ -18,7 +19,7 @@ export class RegisterUserDto {
 
     @IsEnum(GenderList, {
         message: 'El género debe ser MALE o FEMALE',
-    })  
+    })
     userGender: Gender;
 
     @IsString({ message: 'El primer nombre debe ser una cadena de texto' })
@@ -46,10 +47,17 @@ export class RegisterUserDto {
     @MinLength(1, { message: 'El tercer apellido no puede estar vacío si se proporciona' })
     userThirdLastname: string;
 
-    @IsString({ message: 'El correo electrónico debe ser una cadena de texto' })
-    @MinLength(1, { message: 'El correo electrónico es obligatorio' })
+    @IsOptional()
+    @IsString()
     @IsEmail({}, { message: 'El formato del correo electrónico no es válido' })
-    userEmail: string;
+    userEmail?: string;
+
+    @IsOptional()
+    @IsString()
+    userDui?: string;
+
+    @IsEmailOrDui({ message: 'Debe ingresar al menos un correo o un DUI' })
+    dummyCheck: string; // propiedad ficticia solo para la validación cruzada
 
     @IsString({ message: 'La contraseña debe ser una cadena de texto' })
     @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
@@ -62,8 +70,7 @@ export class RegisterUserDto {
     )
     userPassword: string;
 
-    @IsString({ message: 'El DUI debe ser una cadena de texto' })
-    userDui: string;
+
 
     @IsDate({ message: 'La fecha de nacimiento debe ser una fecha válida' })
     userBirthdate: Date;
@@ -74,4 +81,10 @@ export class RegisterUserDto {
     @IsString({ message: 'La dirección debe ser una cadena de texto' })
     @IsOptional()
     userAddress: string;
+
+    // TODO Documentar esto para swagger
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsInt({ each: true })
+    profilesId: number[];
 }

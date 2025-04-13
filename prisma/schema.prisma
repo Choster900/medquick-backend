@@ -47,9 +47,9 @@ model user {
     user_first_lastname              String
     user_second_lastname             String
     user_third_lastname              String
-    user_email                       String                     @unique
+    user_email                       String?                    @unique
     user_password                    String
-    user_dui                         String                     @unique
+    user_dui                         String?                    @unique
     user_birthdate                   DateTime
     user_phone_number                String
     user_address                     String
