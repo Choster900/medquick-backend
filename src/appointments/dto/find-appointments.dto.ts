@@ -1,4 +1,4 @@
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsOptional, IsUUID, IsBooleanString } from 'class-validator';
 
 export class FindAppointmentsDto {
     @IsOptional()
@@ -16,4 +16,8 @@ export class FindAppointmentsDto {
     @IsOptional()
     @IsUUID()
     institutionId?: string;
+
+    @IsOptional()
+    @IsBooleanString() // 'true' o 'false' como string (query param)
+    all?: string;
 }
