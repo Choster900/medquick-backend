@@ -2,8 +2,7 @@ import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { AuthService } from './auth.service';
-import { RegisterUserDto } from './dto';
-import { LoginUserByEmailDto } from './dto/login-user-email.dto';
+import { LoginUserDto, RegisterUserDto } from './dto';
 import { ApiResponse } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 
@@ -19,9 +18,9 @@ export class AuthController {
         return this.authService.registerUser(registerUserDto);
     }
 
-    @Post('login-by-email')
-    loginByEmail(@Body() loginByEmailDto: LoginUserByEmailDto) {
-        return this.authService.loginUserEmail(loginByEmailDto);
+    @Post('login')
+    loginByEmail(@Body() loginByEmailDto: LoginUserDto) {
+        return this.authService.loginUser(loginByEmailDto);
     }
 
     @Get('private-route')

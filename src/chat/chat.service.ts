@@ -19,11 +19,11 @@ export class ChatService extends PrismaClient implements OnModuleInit {
     }
 
 
-    async registerClient(client: Socket, userEmail: string) {
+    async registerClient(client: Socket, userId: string) {
 
         const user = await this.user.findFirst({
             where: {
-                user_email: userEmail
+                user_id: userId
             }
         });
 
