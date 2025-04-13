@@ -11,6 +11,7 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { InstitutionsModule } from './institutions/institutions.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
         InstitutionsModule,
         AppointmentsModule,
         PrescriptionsModule,
+        ChatModule,
     ],
     controllers: [],
     providers: [],
