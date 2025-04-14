@@ -336,7 +336,6 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                             medical_procedure_name: true,
                             medical_procedure_photo_url: true,
                             medical_procedure_estimated_duration: true,
-                            medical_procedure_required_exams_count: true,
                             medical_procedure_requires_confirmation: true,
                             medical_procedure_cost: true,
                             medical_procedure_available_online: true,
@@ -346,7 +345,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                                 select:{
                                     specialty_name: true,
                                     specialt_description: true
-                                    
+
                                 }
                             }
 
