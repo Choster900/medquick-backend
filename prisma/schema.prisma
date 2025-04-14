@@ -394,13 +394,11 @@ model medical_procedure {
     medical_procedure_name                  String
     medical_procedure_photo_url             String
     medical_procedure_estimated_duration    String
-    medical_procedure_required_exams_count  Int
     medical_procedure_requires_confirmation Boolean
-    medical_procedure_cost                  Decimal
+    medical_procedure_cost                  Decimal?
     medical_procedure_available_online      Boolean
-    medical_procedure_available_slots       Int
+    medical_procedure_available_slots       Int?
     medical_procedure_is_active             Boolean
-    medical_procedure_specialty_id          Int
     medical_procedure_created_at            DateTime @default(now())
     medical_procedure_update_at             DateTime @updatedAt
 
