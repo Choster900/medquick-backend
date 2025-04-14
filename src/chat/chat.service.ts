@@ -50,4 +50,39 @@ export class ChatService extends PrismaClient implements OnModuleInit {
         return this.connectedClients[socketId].user.user_first_name;
     }
 
+    async saveMessage(from: string, to: string, message: string) {
+        // Buscar si el chat ya existe
+        let chat = await this.chat.findFirst({
+            where: {
+                chat_user_id: from,
+                chat_doctor_id: to,
+            },
+        });
+
+        if (!chat) {
+            chat = await this.chat.create({
+                data: {
+                    chat_user_id: from,
+                    chat_doctor_id: to,
+                },
+            });
+        }
+
+        const savedMessage = await this.message.create({
+            data: {
+                message_user_id: from,
+                message_chat_id: chat.chat_id,
+                message_content: message,
+                message_status_id: 1,
+            },
+        });
+
+        return {
+            success: true,
+            message: 'Mensaje guardado exitosamente',
+            data: savedMessage,
+        };
+    }
+
+
 }
