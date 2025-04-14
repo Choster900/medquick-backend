@@ -1,5 +1,5 @@
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Controller, Get, Post, Param, UseInterceptors, UploadedFile, Headers, BadRequestException, Res, ParseUUIDPipe } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Post, Param, UseInterceptors, UploadedFile, Headers, BadRequestException, Res, ParseUUIDPipe, Body, UploadedFiles } from '@nestjs/common';
 
 import { Response } from 'express';
 import { diskStorage } from 'multer';
@@ -51,33 +51,71 @@ export class ExamsController {
 
 
     @Post("uploadToAppointment/:medicalAppointmentId")
-    @UseInterceptors(FileInterceptor('file', {
+    @UseInterceptors(FilesInterceptor('files', 10, {
         fileFilter: fileFilter,
         storage: diskStorage({
             destination: './static/exams',
             filename: fileNamer
         })
     }))
-    uploadExamToAppointment(
+    async uploadExamToAppointment(
         @Param('medicalAppointmentId', ParseUUIDPipe) medicalAppointmentId: string,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFiles() files: Express.Multer.File[],
+        @Body('comments') comments: string[],
         @Headers() headers
     ) {
-        if (!file) {
+        if (!files) {
             throw new BadRequestException('Asegúrate de que haya un archivo en el body');
         }
 
-        this.examsService.uploadFile(file, medicalAppointmentId)
+        const combined = files.map((file, index) => ({
+            file,
+            comment: comments?.[index] || null,
+        }));
+        console.log(combined);
+        await this.examsService.uploadFile(combined, medicalAppointmentId)
+
+        const protocol = headers['x-forwarded-proto'] || 'http'; // Detecta si es http o https
+        const host = headers.host;
+
+     /*    const secureUrl = `${protocol}://${host}/api/exams/file/${file.filename}`; */
+
+        return true
+    }
+
+
+  /*   @Post("uploadToAppointment/:medicalAppointmentId")
+    @UseInterceptors(FilesInterceptor('files', 10, {
+        fileFilter: fileFilter,
+        storage: diskStorage({
+            destination: './static/exams',
+            filename: fileNamer
+        })
+    }))
+    async uploadExamToAppointment(
+        @Param('medicalAppointmentId', ParseUUIDPipe) medicalAppointmentId: string,
+        @UploadedFiles() files: Express.Multer.File[],
+        @Body('comments') comments: string[],
+        @Headers() headers
+    ) {
+        if (!files) {
+            throw new BadRequestException('Asegúrate de que haya un archivo en el body');
+        }
+
+        const combined = files.map((file, index) => ({
+            file,
+            comment: comments?.[index] || null,
+        }));
+        console.log(combined);
+        await this.examsService.uploadFile(combined, medicalAppointmentId)
 
         const protocol = headers['x-forwarded-proto'] || 'http'; // Detecta si es http o https
         const host = headers.host;
 
         const secureUrl = `${protocol}://${host}/api/exams/file/${file.filename}`;
 
-        return {
-            secureUrl
-        };
-    }
+        return true
+    } */
 
 
     @Get('file/:imageName')

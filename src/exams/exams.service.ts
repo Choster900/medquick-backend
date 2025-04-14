@@ -29,24 +29,33 @@ export class ExamsService extends PrismaClient implements OnModuleInit {
 
 
 
-    async uploadFile(file: any, medicalAppointmentId: string) {
+    async uploadFile(filesWithComments: { file: Express.Multer.File, comment: string | null }[], medicalAppointmentId: string) {
 
-        const updatedAppointment = await this.medical_exam.create({
-            data: {
-                medical_appointment_id: medicalAppointmentId,
-                medical_exam_type_file_id: 1,
-                medical_exam_name_file: '',
-                medical_exam_path: '',
-                medical_exam_description: '',
-                medical_exam_origin_examp: true,
-                medical_exam_date_up: '',
-                medical_exam_created_at: '',
-                medical_exam_updated_at: '',
+        for (const { file, comment } of filesWithComments) {
+            const medicalExamTypeFileId = await this.file_type.findFirst({
+                where: {
+                    file_type_mime_type: file.mimetype
+                }
+            });
 
+            if (!medicalExamTypeFileId) {
+                throw new Error('Invalid file type');
             }
-        })
 
-        return updatedAppointment
+            await this.medical_exam.create({
+                data: {
+                    medical_appointment_id: medicalAppointmentId,
+                    medical_exam_type_file_id: medicalExamTypeFileId.file_type_id,
+                    medical_exam_name_file: file.filename,
+                    medical_exam_path: file.path,
+                    medical_exam_description: comment ?? 'Sin comentario',
+                    medical_exam_origin_examp: true,
+                    medical_exam_date_up: new Date(),
+                },
+            });
+        }
+
+        return true
 
     }
 

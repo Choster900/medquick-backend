@@ -21,7 +21,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             const {
                 nonRegisteredPatientId,
                 branchId,
-                specialtyId,
+                medicalProcedureId,
             } = createAppointmentDto;
 
             // Validar si el usuario existe
@@ -52,7 +52,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                     non_registered_patient_id: nonRegisteredPatientId,
                     patient_user_id: patientUserId,
                     branch_id: branchId,
-                    specialty_id: specialtyId,
+                    medical_procedure_id: medicalProcedureId,
                     medical_appointment_state_id: 1, // Estado inicial (Pendiente)
                 },
             });
@@ -331,9 +331,25 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                     medical_appointment_cancellation_reason: true,
                     medical_appointment_notes: true,
                     medical_appointment_created_at: true,
-                    specialty: {
+                    medical_procedure:{
                         select: {
-                            specialty_name: true,
+                            medical_procedure_name: true,
+                            medical_procedure_photo_url: true,
+                            medical_procedure_estimated_duration: true,
+                            medical_procedure_required_exams_count: true,
+                            medical_procedure_requires_confirmation: true,
+                            medical_procedure_cost: true,
+                            medical_procedure_available_online: true,
+                            medical_procedure_available_slots: true,
+                            medical_procedure_is_active: true,
+                            specialty:{
+                                select:{
+                                    specialty_name: true,
+                                    specialt_description: true
+                                    
+                                }
+                            }
+
                         }
                     },
                     branch: {

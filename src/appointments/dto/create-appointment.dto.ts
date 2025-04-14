@@ -12,9 +12,8 @@ export class CreateAppointmentDto {
     branchId: string;
 
     @IsNotEmpty()
-    @IsNumber()
-    @Type(() => Number)
-    specialtyId: number;
+    @IsString()
+    medicalProcedureId: string;
 
 
     @IsArray()
