@@ -47,8 +47,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
     @SubscribeMessage('message-from-client')
-    onMessageFromClient(client: Socket, payload: NewMessageDto) {
+    async onMessageFromClient(client: Socket, payload: NewMessageDto) {
 
+
+        const decodeJwt = this.jwtService.decode(client.handshake.headers.authenticateionjwt as string) as JwtPayload
+        console.log(decodeJwt);
+        console.log(payload);
+
+        await this.chatService.saveMessage(decodeJwt.userId, payload.to, payload.message)
 
         this.wss.emit('message-from-server', {
             fullName: this.chatService.getUserFullName(client.id),
