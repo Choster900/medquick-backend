@@ -15,6 +15,7 @@ import {
     seedSpecialities,
 } from './seeders';
 import { seedAuthUserProfile } from './seeders/auth-user-profile.seede';
+import { seedExams } from './seeders/exam';
 
 const prisma = new PrismaClient();
 
@@ -29,6 +30,7 @@ async function main() {
     await seedAdministrationRoutes(prisma, now);
     await seedFileTypes(prisma, now);
     await seedRelationshipTypes(prisma, now);
+    await seedExams(prisma, now)
 
     // === Entidades principales ===
     await seedInstitutions(prisma, now);
