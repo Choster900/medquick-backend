@@ -224,7 +224,7 @@ export class ProcedureService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-            return buildSuccessResponse(updatedProcedure, 'Procedimiento desactivado con éxito');
+            return buildSuccessResponse(updatedProcedure, 'Gestion desactivado con éxito');
         } catch (error) {
             return buildErrorResponse(error.message || 'Error interno del servidor', 500);
         }

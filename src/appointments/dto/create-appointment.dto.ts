@@ -13,6 +13,7 @@ export class CreateAppointmentDto {
 
     @IsNotEmpty()
     @IsString()
+    @IsUUID()
     medicalProcedureId: string;
 
 

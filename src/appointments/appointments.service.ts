@@ -43,7 +43,26 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             });
 
             if (!branchExists) {
-                throw new Error('Branch does not exist');
+                throw new Error('La sucursal no existe');
+            }
+
+
+            // Crear la cita médica
+            const verifyPatientAppointment = await this.medical_appointment.findFirst({
+                where: {
+                    //non_registered_patient_id: nonRegisteredPatientId,
+                    patient_user_id: patientUserId,
+                    //branch_id: branchId,
+                    medical_procedure_id: medicalProcedureId,
+                    medical_appointment_state_id: {
+                        in: [1, 2, 5, 6], //[Created,Scheduled,Rescheduled,Pending,In Progress]
+                    },
+                },
+            });
+
+            if (verifyPatientAppointment) {
+                throw new Error('Ya hay una cita en curso');
+
             }
 
             // Crear la cita médica
@@ -331,7 +350,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                     medical_appointment_cancellation_reason: true,
                     medical_appointment_notes: true,
                     medical_appointment_created_at: true,
-                    medical_procedure:{
+                    medical_procedure: {
                         select: {
                             medical_procedure_name: true,
                             medical_procedure_photo_url: true,
@@ -341,8 +360,8 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                             medical_procedure_available_online: true,
                             medical_procedure_available_slots: true,
                             medical_procedure_is_active: true,
-                            specialty:{
-                                select:{
+                            specialty: {
+                                select: {
                                     specialty_name: true,
                                     specialt_description: true
 
