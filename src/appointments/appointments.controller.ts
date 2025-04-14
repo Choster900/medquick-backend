@@ -18,7 +18,7 @@ export class AppointmentsController {
     @Post() // TODO : Depurar codigo ( improve )
     @Roles('PACIENTE')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @UseInterceptors(FilesInterceptor('files', 10, {  // 'files' es el campo en el form-data, y 10 es el límite de archivos
+    @UseInterceptors(FilesInterceptor('files', 10, {
         fileFilter: fileFilter,
         storage: diskStorage({
             destination: './static/exams',
