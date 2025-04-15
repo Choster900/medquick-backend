@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  medquick-backend:
+    build: ./
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - ./src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: file:./dev.db
