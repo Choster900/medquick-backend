@@ -1,0 +1,447 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native"]
+}
+
+/**
+ * generator seed {
+ * provider = "ts-node"
+ * output   = "prisma/seed.ts"
+ * }
+ */
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+enum Gender {
+    MALE
+    FEMALE
+}
+
+model user_state {
+    user_state_id          Int      @id @default(autoincrement())
+    user_state_name        String
+    user_state_description String
+    user_state_created_at  DateTime @default(now())
+    user_state_updated_at  DateTime @updatedAt
+
+    user user[]
+}
+
+model user {
+    user_id                          String                     @id @default(uuid())
+    user_state                       user_state?                @relation(fields: [user_state_id], references: [user_state_id], onDelete: Cascade)
+    user_state_id                    Int?
+    user_gender                      Gender
+    user_first_name                  String
+    user_second_name                 String
+    user_third_name                  String
+    user_first_lastname              String
+    user_second_lastname             String
+    user_third_lastname              String
+    user_email                       String?                    @unique
+    user_password                    String
+    user_dui                         String?                    @unique
+    user_birthdate                   DateTime
+    user_phone_number                String
+    user_address                     String
+    user_create_at                   DateTime                   @default(now())
+    user_update_at                   DateTime                   @updatedAt
+    users_branches_specialty         users_branches_specialty[]
+    non_registered_patient           non_registered_patient[]
+    medical_appointment_as_patient   medical_appointment[]      @relation("PatientUser")
+    medical_appointment_as_doctor    medical_appointment[]      @relation("DoctorUser")
+    medical_appointment_as_scheduler medical_appointment[]      @relation("AppointmentScheduler")
+    branch_comment                   branch_comment[]
+    medical_comment_as_user          medical_comment[]          @relation("CommentUser")
+    medical_comment_as_doctor        medical_comment[]          @relation("CommentDoctor")
+    chat                             chat[]                     @relation("ChatUser")
+    chat_as_doctor                   chat[]                     @relation("ChatDoctor")
+    message                          message[]
+    auth_user_profile                auth_user_profile[]
+    users_specialty                  users_specialty[]
+}
+
+model institution {
+    institution_id          String   @id @default(uuid())
+    institution_name        String   @unique
+    institution_acronym     String   @unique
+    institution_description String?
+    institution_status      Boolean  @default(true)
+    institution_created_at  DateTime @default(now())
+    institution_updated_at  DateTime @updatedAt
+
+    branch branch[]
+}
+
+model branch {
+    branch_id           String                @id @default(uuid())
+    institution         institution           @relation(fields: [institution_id], references: [institution_id], onDelete: Cascade)
+    institution_id      String
+    branch_name         String
+    branch_acronym      String
+    branch_description  String
+    branch_longitude    String?
+    branch_latitude     String?
+    branch_full_address String?
+    branch_status       Boolean?              @default(true)
+    branch_created_at   DateTime              @default(now())
+    branch_updated_at   DateTime              @updatedAt
+    medical_appointment medical_appointment[]
+    branch_comment      branch_comment[]
+}
+
+model administration_route {
+    administration_route_id          Int      @id @default(autoincrement())
+    administration_route_name        String
+    administration_route_description String?
+    administration_route_status      Boolean
+    administration_route_created_at  DateTime @default(now())
+    administration_route_updated_at  DateTime @updatedAt
+
+    prescription_item prescription_item[]
+}
+
+model prescription {
+    prescription_id            Int                 @id @default(autoincrement())
+    medical_appointment        medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id], onDelete: Cascade)
+    medical_appointment_id     String
+    prescription_notes         String?
+    prescription_fecha_emision DateTime
+    prescription_created_at    DateTime            @default(now())
+    prescription_updated_at    DateTime            @updatedAt
+
+    prescription_item prescription_item[]
+}
+
+model prescription_item {
+    prescription_item_id              Int                   @id @default(autoincrement())
+    prescription                      prescription?         @relation(fields: [prescription_id], references: [prescription_id], onDelete: Cascade)
+    prescription_id                   Int?
+    administration_route              administration_route? @relation(fields: [administration_route_id], references: [administration_route_id], onDelete: Cascade)
+    administration_route_id           Int?
+    prescription_item_medication_name String
+    prescription_item_dosage          String?
+    prescription_item_frequency       String?
+    prescription_item_duration        String?
+    prescription_item_unit            String?
+    prescription_item_item_notes      String?
+    prescription_item_created_at      DateTime              @default(now())
+    prescription_item_updated_at      DateTime              @updatedAt
+}
+
+model specialty {
+    specialty_id         Int      @id @default(autoincrement())
+    specialty_name       String
+    specialt_description String?
+    specialt_status      Boolean
+    specialty_created_at DateTime @default(now())
+    specialty_update_at  DateTime @updatedAt
+
+    users_branches_specialty users_branches_specialty[]
+    /**
+     * medical_appointment      medical_appointment[]
+     */
+    medical_procedures       medical_procedure[]
+    users_specialty          users_specialty[]
+}
+
+model users_branches_specialty {
+    users_branches_specialty_id         Int       @id @default(autoincrement())
+    user                                user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+    user_id                             String
+    specialty                           specialty @relation(fields: [specialty_id], references: [specialty_id], onDelete: Cascade)
+    specialty_id                        Int
+    users_branches_specialty_created_at DateTime  @default(now())
+    users_branches_specialty_update_at  DateTime  @updatedAt
+}
+
+model medical_appointment_state {
+    medical_appointment_state_id          Int      @id @default(autoincrement())
+    medical_appointment_state_description String
+    medical_appointment_state_created_at  DateTime @default(now())
+    medical_appointment_state_updated_at  DateTime @updatedAt
+
+    // Relación con medical_appointment
+    medical_appointment medical_appointment[]
+
+    // Relaciones con appointment_status_history (dos roles distintos)
+    previous_status_history appointment_status_history[] @relation("PreviousStatus")
+    new_status_history      appointment_status_history[] @relation("NewStatus")
+}
+
+model appointment_status_history {
+    appointment_status_history_id Int      @id @default(autoincrement())
+    medical_appointment_id        String
+    previous_status_id            Int
+    new_status_id                 Int
+    fecha_hora                    DateTime @default(now())
+
+    // Relaciones
+    medical_appointment medical_appointment       @relation(fields: [medical_appointment_id], references: [medical_appointment_id])
+    previous_status     medical_appointment_state @relation("PreviousStatus", fields: [previous_status_id], references: [medical_appointment_state_id])
+    new_status          medical_appointment_state @relation("NewStatus", fields: [new_status_id], references: [medical_appointment_state_id])
+
+    @@map("appointment_status_history")
+}
+
+model non_registered_patient {
+    non_registered_patient_id              Int                   @id @default(autoincrement())
+    legal_representative                   user?                 @relation(fields: [legal_representative_id], references: [user_id], onDelete: Cascade)
+    legal_representative_id                String?
+    relationship_type                      relationship_type?    @relation(fields: [relationship_type_id], references: [relationship_type_id], onDelete: Cascade)
+    relationship_type_id                   Int?
+    non_registered_patient_gender          Gender
+    non_registered_patient_first_name      String
+    non_registered_patient_second_name     String
+    non_registered_patient_thrid_name      String
+    non_registered_patient_first_lastname  String
+    non_registered_patient_second_lastname String
+    non_registered_patient_third_lastname  String
+    non_registered_patient_birthdate       DateTime
+    non_registered_patient_phone_number    String?
+    non_registered_patient_dui             String?               @unique
+    non_registered_patient_address         String?
+    non_registered_patient_email           String?               @unique
+    non_registered_patient_genero          Boolean
+    non_registered_patient_created_at      DateTime              @default(now())
+    non_registered_patient_updated_at      DateTime              @updatedAt
+    medical_appointment                    medical_appointment[]
+}
+
+model relationship_type {
+    relationship_type_id          Int      @id @default(autoincrement())
+    relationship_type_description String
+    relationship_type_created_at  DateTime @default(now())
+    relationship_type_updated_at  DateTime @updatedAt
+
+    non_registered_patient non_registered_patient[]
+}
+
+model medical_appointment {
+    medical_appointment_id    String                  @id @default(uuid())
+    non_registered_patient    non_registered_patient? @relation(fields: [non_registered_patient_id], references: [non_registered_patient_id])
+    non_registered_patient_id Int?
+    patient_user              user?                   @relation("PatientUser", fields: [patient_user_id], references: [user_id], onDelete: Cascade)
+    patient_user_id           String?
+    doctor_user               user?                   @relation("DoctorUser", fields: [doctor_user_id], references: [user_id], onDelete: Cascade)
+    doctor_user_id            String?
+    appointment_scheduler     user?                   @relation("AppointmentScheduler", fields: [appointment_scheduler_id], references: [user_id])
+    appointment_scheduler_id  String?
+    branch                    branch                  @relation(fields: [branch_id], references: [branch_id])
+    branch_id                 String
+    /**
+     * specialty                               specialty                 @relation(fields: [specialty_id], references: [specialty_id])
+     * specialty_id                            Int
+     */
+
+    medical_procedure    medical_procedure @relation(fields: [medical_procedure_id], references: [medical_procedure_id])
+    medical_procedure_id String
+
+    medical_appointment_state               medical_appointment_state @relation(fields: [medical_appointment_state_id], references: [medical_appointment_state_id])
+    medical_appointment_state_id            Int
+    medical_appointment_date_time           DateTime?
+    medical_appointment_cancellation_reason String?
+    medical_appointment_notes               String?
+    medical_appointment_created_at          DateTime                  @default(now())
+    medical_appointment_updated_at          DateTime                  @updatedAt
+
+    medical_exam               medical_exam[]
+    prescription               prescription[]
+    appointment_status_history appointment_status_history[]
+    /**
+     * specialty                  specialty?                   @relation(fields: [specialtySpecialty_id], references: [specialty_id])
+     * specialtySpecialty_id      Int?
+     */
+}
+
+model medical_exam {
+    medical_exam_id           Int                 @id @default(autoincrement())
+    medical_appointment       medical_appointment @relation(fields: [medical_appointment_id], references: [medical_appointment_id], onDelete: Cascade)
+    medical_appointment_id    String
+    file_type                 file_type           @relation(fields: [medical_exam_type_file_id], references: [file_type_id], onDelete: Cascade)
+    medical_exam_type_file_id Int
+    medical_exam_name_file    String
+    medical_exam_path         String?
+    medical_exam_description  String?
+    medical_exam_origin_examp Boolean             @map("medical_exam_origin_examp") // 1: Prescribed, 0: Uploaded by patient
+    medical_exam_date_up      DateTime?
+    medical_exam_created_at   DateTime            @default(now())
+    medical_exam_updated_at   DateTime            @updatedAt
+}
+
+model file_type {
+    file_type_id         Int      @id @default(autoincrement())
+    file_type_name       String
+    file_type_mime_type  String?
+    file_type_extension  String?
+    file_type_created_at DateTime @default(now())
+    file_type_updated_at DateTime @updatedAt
+
+    medical_exam medical_exam[]
+}
+
+model branch_comment {
+    branch_comment_id         Int      @id @default(autoincrement())
+    user                      user     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+    user_id                   String
+    branch                    branch   @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade)
+    branch_id                 String
+    branch_comment_comment    String
+    branch_comment_rating     Float    @default(5.0)
+    branch_comment_created_at DateTime @default(now())
+    branch_comment_updated_at DateTime @updatedAt
+}
+
+model medical_comment {
+    medical_comment_id         Int      @id @default(autoincrement())
+    user                       user     @relation("CommentUser", fields: [user_id], references: [user_id], onDelete: Cascade)
+    user_id                    String
+    doctor                     user     @relation("CommentDoctor", fields: [id_medico], references: [user_id], onDelete: Cascade)
+    id_medico                  String
+    medical_comment_comment    String
+    medical_comment_rating     Float    @default(5.0)
+    medical_comment_created_at DateTime @default(now())
+    medical_comment_updated_at DateTime @updatedAt
+}
+
+model chat {
+    chat_id         Int      @id @default(autoincrement())
+    chat_user       user     @relation("ChatUser", fields: [chat_user_id], references: [user_id], onDelete: Cascade)
+    chat_user_id    String
+    chat_doctor     user     @relation("ChatDoctor", fields: [chat_doctor_id], references: [user_id], onDelete: Cascade)
+    chat_doctor_id  String
+    chat_created_at DateTime @default(now())
+    chat_updated_at DateTime @updatedAt
+
+    message message[]
+}
+
+model message {
+    message_id         Int            @id @default(autoincrement())
+    message_user       user           @relation(fields: [message_user_id], references: [user_id], onDelete: Cascade)
+    message_user_id    String
+    message_chat       chat           @relation(fields: [message_chat_id], references: [chat_id], onDelete: Cascade)
+    message_chat_id    Int
+    message_content    String
+    message_file_type  String?
+    message_file_path  String?
+    message_status     message_status @relation(fields: [message_status_id], references: [message_status_id], onDelete: Cascade)
+    message_status_id  Int
+    message_created_at DateTime       @default(now())
+    message_updated_at DateTime       @updatedAt
+}
+
+model message_status {
+    message_status_id          Int      @id @default(autoincrement())
+    message_status_description String
+    message_status_created_at  DateTime @default(now())
+    message_status_updated_at  DateTime @updatedAt
+
+    message message[]
+}
+
+model auth_user_profile {
+    auth_user_profile_id          Int              @id @default(autoincrement())
+    security_profile              security_profile @relation(fields: [security_profile_id], references: [security_profile_id], onDelete: Cascade)
+    security_profile_id           Int
+    user                          user             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+    user_id                       String
+    auth_user_profile_created_at  DateTime         @default(now())
+    auth_user_profile_modified_at DateTime         @updatedAt
+}
+
+model security_profile {
+    security_profile_id                  Int                        @id @default(autoincrement())
+    security_profile_profile_name        String
+    security_profile_profile_description String
+    security_profile_created_at          DateTime                   @default(now())
+    security_profile_modified_at         DateTime                   @updatedAt
+    auth_user_profile                    auth_user_profile[]
+    security_permiso_profile             security_permiso_profile[]
+}
+
+model security_permiso_profile {
+    security_permiso_profile_id         Int                 @id @default(autoincrement())
+    security_permission_id              Int
+    security_permission                 security_permission @relation(fields: [security_permission_id], references: [security_permission_id], onDelete: Cascade)
+    security_profile_id                 Int
+    security_profile                    security_profile    @relation(fields: [security_profile_id], references: [security_profile_id], onDelete: Cascade)
+    security_permiso_profile_created_at DateTime            @default(now())
+}
+
+model security_permission {
+    security_permission_id              Int      @id @default(autoincrement())
+    security_permission_permission_name String
+    security_permission_permission_code String
+    security_permission_created_at      DateTime @default(now())
+    security_permission_modified_at     DateTime @updatedAt
+
+    security_permiso_profile security_permiso_profile[]
+}
+
+model medical_procedure {
+    medical_procedure_id                    String   @id @default(uuid())
+    specialty_id                            Int
+    medical_procedure_name                  String
+    medical_procedure_photo_url             String
+    medical_procedure_estimated_duration    String
+    medical_procedure_requires_confirmation Boolean
+    medical_procedure_cost                  Decimal?
+    medical_procedure_available_online      Boolean
+    medical_procedure_available_slots       Int?
+    medical_procedure_is_active             Boolean
+    medical_procedure_created_at            DateTime @default(now())
+    medical_procedure_update_at             DateTime @updatedAt
+
+    specialty           specialty                 @relation(fields: [specialty_id], references: [specialty_id])
+    required_exams      procedure_required_exam[]
+    medical_appointment medical_appointment[]
+
+    @@map("medical_procedures")
+}
+
+model procedure_required_exam {
+    procedure_required_exam_id         Int      @id @default(autoincrement())
+    procedure_id                       String
+    exam_id                            Int
+    procedure_required_exam_created_at DateTime @default(now())
+    procedure_required_exam_update_at  DateTime @updatedAt
+
+    procedure medical_procedure @relation(fields: [procedure_id], references: [medical_procedure_id])
+    exam      exam              @relation(fields: [exam_id], references: [exam_id])
+
+    @@map("procedure_required_exams")
+}
+
+model exam {
+    exam_id         Int      @id @default(autoincrement())
+    exam_name       String
+    exam_created_at DateTime @default(now())
+    exam_update_at  DateTime @updatedAt
+
+    required_by_procedures procedure_required_exam[]
+
+    @@map("exams")
+}
+
+model users_specialty {
+    users_branches_specialty_id         Int      @id @default(autoincrement())
+    user_id                             String
+    specialty_id                        Int
+    users_branches_specialty_created_at DateTime @default(now())
+    users_branches_specialty_update_at  DateTime @updatedAt
+
+    user      user      @relation(fields: [user_id], references: [user_id])
+    specialty specialty @relation(fields: [specialty_id], references: [specialty_id])
+
+    @@map("users_specialty")
+}
