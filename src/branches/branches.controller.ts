@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from
 import { BranchesService } from './branches.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
+import { UpdateBranchStatusDto } from './dto/update-dranch-status.dto';
 
 @Controller('branches')
 export class BranchesController {
@@ -28,7 +29,10 @@ export class BranchesController {
     }
 
     @Delete(':id')
-    remove(@Param('id', ParseUUIDPipe) id: string, @Body() updateBranchDto: UpdateBranchDto) {
-        return this.branchesService.updateStatus(id, updateBranchDto.branchStatus);
+    remove(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Body() updateBranchStatusDto: UpdateBranchStatusDto
+    ) {
+        return this.branchesService.updateStatus(id, updateBranchStatusDto.branchStatus);
     }
 }
