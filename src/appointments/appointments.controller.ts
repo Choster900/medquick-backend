@@ -9,35 +9,56 @@ import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, Fin
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { fileFilter, fileNamer } from 'src/exams/helpers';
 import { diskStorage } from 'multer';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 
 @Controller('appointments')
 export class AppointmentsController {
     constructor(private readonly appointmentsService: AppointmentsService) { }
 
-    @Post() // TODO : Depurar codigo ( improve )
+    @Post()
     @Roles('PACIENTE')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UseInterceptors(FilesInterceptor('files', 10, {
-        fileFilter: fileFilter,
+        fileFilter,
         storage: diskStorage({
             destination: './static/exams',
-            filename: fileNamer
+            filename: fileNamer,
         }),
     }))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        description: 'Crear cita médica con archivos de exámenes y comentarios',
+        schema: {
+            type: 'object',
+            properties: {
+                branchId: { type: 'string', format: 'uuid' },
+                medicalProcedureId: { type: 'string', format: 'uuid' },
+                nonRegisteredPatientId: { type: 'number', nullable: true },
+                comments: {
+                    type: 'array',
+                    items: { type: 'string' },
+                },
+                files: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        format: 'binary',
+                    },
+                },
+            },
+        },
+    })
     create(
         @UploadedFiles() files: Express.Multer.File[],
         @Body() createAppointmentDto: CreateAppointmentDto,
         @Body('comments') comments: string[],
         @User() user: CurrentUser,
     ) {
-
         const combined = files.map((file, index) => ({
             file,
             comment: comments?.[index] || null,
         }));
-        console.log(combined);
-
         return this.appointmentsService.create(createAppointmentDto, user.user_id, combined);
     }
 
