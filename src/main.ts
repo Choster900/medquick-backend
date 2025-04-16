@@ -33,6 +33,10 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('MedQuick Doc')
         .setVersion('1.0')
+        .addSecurity('basic', {
+            type: 'http',
+            scheme: 'basic',
+        })
         .addBearerAuth(
             {
                 type: 'http',
