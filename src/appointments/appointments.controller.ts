@@ -9,9 +9,9 @@ import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, Fin
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { fileFilter, fileNamer } from 'src/exams/helpers';
 import { diskStorage } from 'multer';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiSecurity } from '@nestjs/swagger';
 
-
+@ApiBearerAuth('JWT-auth')
 @Controller('appointments')
 export class AppointmentsController {
     constructor(private readonly appointmentsService: AppointmentsService) { }
@@ -26,6 +26,7 @@ export class AppointmentsController {
             filename: fileNamer,
         }),
     }))
+    @ApiOperation({ summary: 'Crear cita médica con archivos de exámenes y comentarios' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         description: 'Crear cita médica con archivos de exámenes y comentarios',
@@ -52,17 +53,18 @@ export class AppointmentsController {
     create(
         @UploadedFiles() files: Express.Multer.File[],
         @Body() createAppointmentDto: CreateAppointmentDto,
-        @Body('comments') comments: string[],
         @User() user: CurrentUser,
     ) {
         const combined = files.map((file, index) => ({
             file,
-            comment: comments?.[index] || null,
+            comment: createAppointmentDto.comments?.[index] || null,
         }));
         return this.appointmentsService.create(createAppointmentDto, user.user_id, combined);
     }
 
     @Get('status/:medicalAppointmentState')
+    @ApiOperation({ summary: 'Obtener citas por estado' })
+    @ApiParam({ name: 'medicalAppointmentState', type: Number, description: 'Estado de la cita médica' })
     findAllByStatus(
         @Param('medicalAppointmentState', ParseIntPipe) medicalAppointmentState: number
     ) {
@@ -70,6 +72,12 @@ export class AppointmentsController {
     }
 
     @Get('filter')
+    @ApiOperation({ summary: 'Filtrar citas por usuario, sucursal, doctor o institución' })
+    @ApiQuery({ name: 'userId', required: false, description: 'Si es true, retornara las citas por usuario' })
+    @ApiQuery({ name: 'branchId', required: false, description: 'Si es true, retornara las citas por sucursal' })
+    @ApiQuery({ name: 'doctorUserId', required: false, description: 'Si es true, retornara las citas por medicos' })
+    @ApiQuery({ name: 'institutionId', required: false, description: 'Si es true, retornara las citas por institucion' })
+    @ApiQuery({ name: 'all', required: false, description: 'Si es true, retornara todas las citas' })
     @UseGuards(JwtAuthGuard)
     async findAppointments(@Query() query: FindAppointmentsDto) {
         const { userId, branchId, doctorUserId, institutionId, all } = query;
@@ -100,6 +108,9 @@ export class AppointmentsController {
     @Patch('schedule/:medicalAppointmentId')
     @Roles('ADMIN')
     @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiOperation({ summary: 'Agendar cita médica existente' })
+    @ApiParam({ name: 'medicalAppointmentId', type: 'string', format: 'uuid' })
+    @ApiBody({ type: ScheduleAppointmentDto })
     schedule(
         @Param('medicalAppointmentId') medicalAppointmentId: string,
         @Body() scheduleAppointmentDto: ScheduleAppointmentDto,
@@ -110,16 +121,24 @@ export class AppointmentsController {
     }
 
     @Get(':id')
+    @ApiOperation({ summary: 'Obtener detalles de una cita por ID' })
+    @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
     findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.appointmentsService.findOne(id);
     }
 
     @Patch(':id')
+    @ApiOperation({ summary: 'Actualizar datos de una cita' })
+    @ApiParam({ name: 'id', type: 'string' })
+    @ApiBody({ type: UpdateAppointmentDto })
     update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
         return this.appointmentsService.update(+id, updateAppointmentDto);
     }
 
     @Delete(':id')
+    @ApiOperation({ summary: 'Cancelar una cita' })
+    @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+    @ApiBody({ type: CancelAppointmentDto })
     remove(@Param('id', ParseUUIDPipe) id: string, @Body() cancelAppointmentDto: CancelAppointmentDto) {
         return this.appointmentsService.remove(id, cancelAppointmentDto);
     }
