@@ -1,10 +1,9 @@
+// jwt-payload.interface.ts
 
+import { Profiles } from './profiles.interface';
 
 export interface JwtPayload {
-
-    userEmail: string
-
-
-    // TODO : Añadir los demas campos que se quiera grabar
-
+    userId: string;
+  /*   userEmail: string; */
+    userProfiles: Profiles[];
 }

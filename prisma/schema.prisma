@@ -47,9 +47,9 @@ model user {
     user_first_lastname              String
     user_second_lastname             String
     user_third_lastname              String
-    user_email                       String                     @unique
+    user_email                       String?                    @unique
     user_password                    String
-    user_dui                         String                     @unique
+    user_dui                         String?                    @unique
     user_birthdate                   DateTime
     user_phone_number                String
     user_address                     String
@@ -67,6 +67,7 @@ model user {
     chat_as_doctor                   chat[]                     @relation("ChatDoctor")
     message                          message[]
     auth_user_profile                auth_user_profile[]
+    users_specialty                  users_specialty[]
 }
 
 model institution {
@@ -146,7 +147,11 @@ model specialty {
     specialty_update_at  DateTime @updatedAt
 
     users_branches_specialty users_branches_specialty[]
-    medical_appointment      medical_appointment[]
+    /**
+     * medical_appointment      medical_appointment[]
+     */
+    medical_procedures       medical_procedure[]
+    users_specialty          users_specialty[]
 }
 
 model users_branches_specialty {
@@ -160,11 +165,32 @@ model users_branches_specialty {
 }
 
 model medical_appointment_state {
-    medical_appointment_state_id          Int                   @id @default(autoincrement())
+    medical_appointment_state_id          Int      @id @default(autoincrement())
     medical_appointment_state_description String
-    medical_appointment_state_created_at  DateTime              @default(now())
-    medical_appointment_state_updated_at  DateTime              @updatedAt
-    medical_appointment                   medical_appointment[]
+    medical_appointment_state_created_at  DateTime @default(now())
+    medical_appointment_state_updated_at  DateTime @updatedAt
+
+    // Relación con medical_appointment
+    medical_appointment medical_appointment[]
+
+    // Relaciones con appointment_status_history (dos roles distintos)
+    previous_status_history appointment_status_history[] @relation("PreviousStatus")
+    new_status_history      appointment_status_history[] @relation("NewStatus")
+}
+
+model appointment_status_history {
+    appointment_status_history_id Int      @id @default(autoincrement())
+    medical_appointment_id        String
+    previous_status_id            Int
+    new_status_id                 Int
+    fecha_hora                    DateTime @default(now())
+
+    // Relaciones
+    medical_appointment medical_appointment       @relation(fields: [medical_appointment_id], references: [medical_appointment_id])
+    previous_status     medical_appointment_state @relation("PreviousStatus", fields: [previous_status_id], references: [medical_appointment_state_id])
+    new_status          medical_appointment_state @relation("NewStatus", fields: [new_status_id], references: [medical_appointment_state_id])
+
+    @@map("appointment_status_history")
 }
 
 model non_registered_patient {
@@ -201,19 +227,25 @@ model relationship_type {
 }
 
 model medical_appointment {
-    medical_appointment_id                  String                    @id @default(uuid())
-    non_registered_patient                  non_registered_patient?   @relation(fields: [non_registered_patient_id], references: [non_registered_patient_id])
-    non_registered_patient_id               Int?
-    patient_user                            user?                     @relation("PatientUser", fields: [patient_user_id], references: [user_id], onDelete: Cascade)
-    patient_user_id                         String?
-    doctor_user                             user?                     @relation("DoctorUser", fields: [doctor_user_id], references: [user_id], onDelete: Cascade)
-    doctor_user_id                          String?
-    appointment_scheduler                   user?                     @relation("AppointmentScheduler", fields: [appointment_scheduler_id], references: [user_id])
-    appointment_scheduler_id                String?
-    branch                                  branch                    @relation(fields: [branch_id], references: [branch_id])
-    branch_id                               String
-    specialty                               specialty                 @relation(fields: [specialty_id], references: [specialty_id])
-    specialty_id                            Int
+    medical_appointment_id    String                  @id @default(uuid())
+    non_registered_patient    non_registered_patient? @relation(fields: [non_registered_patient_id], references: [non_registered_patient_id])
+    non_registered_patient_id Int?
+    patient_user              user?                   @relation("PatientUser", fields: [patient_user_id], references: [user_id], onDelete: Cascade)
+    patient_user_id           String?
+    doctor_user               user?                   @relation("DoctorUser", fields: [doctor_user_id], references: [user_id], onDelete: Cascade)
+    doctor_user_id            String?
+    appointment_scheduler     user?                   @relation("AppointmentScheduler", fields: [appointment_scheduler_id], references: [user_id])
+    appointment_scheduler_id  String?
+    branch                    branch                  @relation(fields: [branch_id], references: [branch_id])
+    branch_id                 String
+    /**
+     * specialty                               specialty                 @relation(fields: [specialty_id], references: [specialty_id])
+     * specialty_id                            Int
+     */
+
+    medical_procedure    medical_procedure @relation(fields: [medical_procedure_id], references: [medical_procedure_id])
+    medical_procedure_id String
+
     medical_appointment_state               medical_appointment_state @relation(fields: [medical_appointment_state_id], references: [medical_appointment_state_id])
     medical_appointment_state_id            Int
     medical_appointment_date_time           DateTime?
@@ -222,8 +254,13 @@ model medical_appointment {
     medical_appointment_created_at          DateTime                  @default(now())
     medical_appointment_updated_at          DateTime                  @updatedAt
 
-    medical_exam medical_exam[]
-    prescription prescription[]
+    medical_exam               medical_exam[]
+    prescription               prescription[]
+    appointment_status_history appointment_status_history[]
+    /**
+     * specialty                  specialty?                   @relation(fields: [specialtySpecialty_id], references: [specialty_id])
+     * specialtySpecialty_id      Int?
+     */
 }
 
 model medical_exam {
@@ -349,4 +386,62 @@ model security_permission {
     security_permission_modified_at     DateTime @updatedAt
 
     security_permiso_profile security_permiso_profile[]
+}
+
+model medical_procedure {
+    medical_procedure_id                    String   @id @default(uuid())
+    specialty_id                            Int
+    medical_procedure_name                  String
+    medical_procedure_photo_url             String
+    medical_procedure_estimated_duration    String
+    medical_procedure_requires_confirmation Boolean
+    medical_procedure_cost                  Decimal?
+    medical_procedure_available_online      Boolean
+    medical_procedure_available_slots       Int?
+    medical_procedure_is_active             Boolean
+    medical_procedure_created_at            DateTime @default(now())
+    medical_procedure_update_at             DateTime @updatedAt
+
+    specialty           specialty                 @relation(fields: [specialty_id], references: [specialty_id])
+    required_exams      procedure_required_exam[]
+    medical_appointment medical_appointment[]
+
+    @@map("medical_procedures")
+}
+
+model procedure_required_exam {
+    procedure_required_exam_id         Int      @id @default(autoincrement())
+    procedure_id                       String
+    exam_id                            Int
+    procedure_required_exam_created_at DateTime @default(now())
+    procedure_required_exam_update_at  DateTime @updatedAt
+
+    procedure medical_procedure @relation(fields: [procedure_id], references: [medical_procedure_id])
+    exam      exam              @relation(fields: [exam_id], references: [exam_id])
+
+    @@map("procedure_required_exams")
+}
+
+model exam {
+    exam_id         Int      @id @default(autoincrement())
+    exam_name       String
+    exam_created_at DateTime @default(now())
+    exam_update_at  DateTime @updatedAt
+
+    required_by_procedures procedure_required_exam[]
+
+    @@map("exams")
+}
+
+model users_specialty {
+    users_branches_specialty_id         Int      @id @default(autoincrement())
+    user_id                             String
+    specialty_id                        Int
+    users_branches_specialty_created_at DateTime @default(now())
+    users_branches_specialty_update_at  DateTime @updatedAt
+
+    user      user      @relation(fields: [user_id], references: [user_id])
+    specialty specialty @relation(fields: [specialty_id], references: [specialty_id])
+
+    @@map("users_specialty")
 }

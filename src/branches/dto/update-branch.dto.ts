@@ -1,9 +1,11 @@
-import { PartialType } from '@nestjs/swagger';
+import { PartialType, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateBranchDto } from './create-branch.dto';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsBoolean } from 'class-validator';
 
 export class UpdateBranchDto extends PartialType(CreateBranchDto) {
 
+    @ApiPropertyOptional({ description: 'Estado de la sucursal (activa o inactiva)' })
     @IsOptional()
-    branchStatus: boolean
+    @IsBoolean()
+    branchStatus: boolean;
 }
