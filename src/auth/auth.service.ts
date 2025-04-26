@@ -1,17 +1,15 @@
 import {
-    HttpException,
     Injectable,
-    InternalServerErrorException,
-    Logger,
     OnModuleInit,
-    ForbiddenException,
+    HttpException,
     ConflictException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 
-import { LoginUserByEmailDto, RegisterUserDto } from './dto';
+import { LoginUserDto, RegisterUserDto } from './dto';
+import { Profiles } from './interfaces/profiles.interface';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { buildErrorResponse } from 'src/common/helpers/error-response';
 import { buildSuccessResponse } from 'src/common/helpers/success-response';
@@ -25,15 +23,11 @@ export class AuthService extends PrismaClient implements OnModuleInit {
         super();
     }
 
-
-    private readonly logger = new Logger('AuthService');
-
     onModuleInit() {
         this.$connect();
     }
 
     async registerUser(registerUserDto: RegisterUserDto) {
-
         const {
             userPhoneNumber, userAddress,
             userFirstName, userSecondName,
@@ -41,24 +35,40 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             userEmail, userGender,
             userPassword, userDui, userBirthdate,
             userSecondLastname, userThirdLastname,
+            profilesId
         } = registerUserDto;
 
         try {
+            if (userEmail) {
+                const existingUser = await this.user.findUnique({
+                    where: { user_email: userEmail },
+                });
 
-            const existingUser = await this.user.findUnique({
-                where: { user_email: userEmail }
-            });
-
-            if (existingUser) {
-                throw new ConflictException('El correo del usuario ya está registrado');
+                if (existingUser) {
+                    throw new ConflictException('El correo del usuario ya está registrado');
+                }
             }
 
-            const existingDui = await this.user.findUnique({
-                where: { user_dui: userDui },
+            if (userDui) {
+                const existingDui = await this.user.findUnique({
+                    where: { user_dui: userDui },
+                });
+
+                if (existingDui) {
+                    throw new ConflictException('El DUI del usuario ya está registrado');
+                }
+            }
+
+            const profiles = await this.security_profile.findMany({
+                where: {
+                    security_profile_id: {
+                        in: profilesId,
+                    },
+                },
             });
 
-            if (existingDui) {
-                throw new ConflictException('El DUI del usuario ya está registrado');
+            if (profiles.length !== profilesId.length) {
+                throw new Error('Uno o más perfiles no existen');
             }
 
             const newUser = await this.user.create({
@@ -77,56 +87,102 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                     user_birthdate: userBirthdate,
                     user_phone_number: userPhoneNumber,
                     user_address: userAddress,
+                    auth_user_profile: {
+                        create: profiles.map(profile => ({
+                            security_profile_id: profile.security_profile_id,
+                        })),
+                    },
+                },
+                include: {
+                    auth_user_profile: {
+                        include: {
+                            security_profile: true,
+                        },
+                    },
                 },
             });
 
+            const profilesData = newUser.auth_user_profile.map((profile) => ({
+                profileName: profile.security_profile.security_profile_profile_name,
+
+            }));
+
+            const jwtPayload = {
+                userEmail: newUser.user_email,
+                userProfiles: profilesData,
+                userId: newUser.user_id,
+            };
+
             return buildSuccessResponse({
                 user: newUser,
-                token: this.getJwtToken({ userEmail: newUser.user_email }),
-            })
-
+                token: this.getJwtToken(jwtPayload),
+            });
         } catch (error) {
-            this.logger.error('Error en registerUser', error);
-            if (error instanceof HttpException) throw error;
 
-            throw new InternalServerErrorException('Error interno del servidor');
+            if (error instanceof HttpException) throw error;
+            return buildErrorResponse(
+                error.message || 'Error interno del servidor',
+                error.status
+            );
         }
     }
 
-    async loginUserEmail(loginByEmailDto: LoginUserByEmailDto) {
-        const { userEmail, userPassword } = loginByEmailDto;
+    async loginUser(loginByEmailDto: LoginUserDto) {
+        const { userEmail, userPassword, userDui } = loginByEmailDto;
 
         try {
-            const user = await this.user.findUnique({
-                where: { user_email: userEmail }
+
+            const user = await this.user.findFirst({
+                where: {
+                    OR: [
+                        { user_email: userEmail || undefined },
+                        { user_dui: userDui || undefined },
+                    ],
+                },
+                include: {
+                    auth_user_profile: {
+                        include: {
+                            security_profile: true,
+                        },
+                    },
+                },
             });
 
             if (!user) {
-                throw new ForbiddenException('El correo no existe');
+                throw new Error('Usuario no encontrado');
             }
 
             const isPasswordValid = bcrypt.compareSync(userPassword, user.user_password);
-
             if (!isPasswordValid) {
-                throw new ForbiddenException('La contraseña es incorrecta');
+                throw new Error('La contraseña es incorrecta');
             }
 
-            const { user_password: ___, ...rest } = user;
+            const profiles: Profiles[] = user.auth_user_profile.map((profile) => ({
+                profileName: profile.security_profile.security_profile_profile_name,
 
-            return {
-                user: rest,
-                token: this.getJwtToken({ userEmail: user.user_email }),
+            }));
+
+            const { user_password: _, auth_user_profile: ___, ...userWithoutPassword } = user;
+
+            const jwtPayload = {
+                userEmail: user.user_email,
+                userProfiles: profiles,
+                userId: user.user_id,
             };
 
+            return {
+                user: userWithoutPassword,
+                token: this.getJwtToken(jwtPayload),
+            };
         } catch (error) {
-            this.logger.error('Error en loginUserEmail', error);
 
-            // Si es una excepción HTTP, se lanza
-            if (error instanceof HttpException) throw error;
-
-            return buildErrorResponse('Error interno del servidor', 500);
+            return buildErrorResponse(
+                error.message || 'Error interno del servidor',
+                error.status
+            );
         }
     }
+
 
     private getJwtToken(payload: JwtPayload) {
 

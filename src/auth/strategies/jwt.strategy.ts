@@ -5,6 +5,7 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
 import { envs } from "src/config";
+import { buildErrorResponse } from "src/common/helpers";
 
 
 @Injectable()
@@ -27,15 +28,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) implements OnModuleI
 
     async validate(payload: JwtPayload): Promise<user> {
 
-        const { userEmail } = payload
+        const { userId } = payload
 
         const user = await this.prisma.user.findUnique({
-            where: { user_email: userEmail }
+            where: { user_id: userId }
         });
 
         if (!user)
-            throw new UnauthorizedException('Token not valid');
-
+            throw new UnauthorizedException(
+                buildErrorResponse(
+                    'No se ha proporcionado un token válido',
+                    401,
+                    'El usuario no existe o el token es inválido',
+                    'auth/validate'
+                )
+            );
 
         return user;
     }

@@ -1,43 +1,28 @@
-import { IsOptional, IsString, IsNumber, IsDate, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsDate, IsNotEmpty, IsUUID, IsArray } from 'class-validator';
+import { Transform, Type } from 'class-transformer'; // <-- Asegurate de importar esto
 
 export class CreateAppointmentDto {
-
-
     @IsOptional()
     @IsNumber()
+    @Type(() => Number)
     nonRegisteredPatientId?: number;
-
-    @IsOptional()
-    @IsUUID()
-    patientUserId?: string;
-
-    /* @IsOptional()
-    @IsUUID()
-    doctorUserId?: string; */
-
-   /*  @IsNotEmpty()
-    @IsUUID()
-    appointmentSchedulerId: string; */
 
     @IsNotEmpty()
     @IsUUID()
     branchId: string;
 
     @IsNotEmpty()
-    specialtyId: number;
-
-   /*  @IsNotEmpty()
-    medicalAppointmentStateId: number; */
-
-    /* @IsNotEmpty()
-    @IsDate()
-    medicalAppointmentDateTime: Date; */
-
-   /*  @IsOptional()
     @IsString()
-    medicalAppointmentCancellationReason?: string; */
+    @IsUUID()
+    medicalProcedureId: string;
 
-    /* @IsOptional()
-    @IsString()
-    medicalAppointmentNotes?: string; */
+
+    @Transform(({ value }) =>
+        Array.isArray(value) ? value : typeof value === 'string' ? [value] : [],
+    )
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    comments: string[];
+
 }

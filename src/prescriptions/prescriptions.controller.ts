@@ -5,30 +5,30 @@ import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 
 @Controller('prescriptions')
 export class PrescriptionsController {
-  constructor(private readonly prescriptionsService: PrescriptionsService) {}
+    constructor(private readonly prescriptionsService: PrescriptionsService) { }
 
-  @Post()
-  create(@Body() createPrescriptionDto: CreatePrescriptionDto) {
-    return this.prescriptionsService.create(createPrescriptionDto);
-  }
+    @Post()
+    create(@Body() createPrescriptionDto: CreatePrescriptionDto) {
+        return this.prescriptionsService.create(createPrescriptionDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.prescriptionsService.findAll();
-  }
+    @Get()
+    findAll() {
+        return this.prescriptionsService.findAll();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.prescriptionsService.findOne(+id);
-  }
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.prescriptionsService.findOne(+id);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePrescriptionDto: UpdatePrescriptionDto) {
-    return this.prescriptionsService.update(+id, updatePrescriptionDto);
-  }
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updatePrescriptionDto: UpdatePrescriptionDto) {
+        return this.prescriptionsService.update(+id, updatePrescriptionDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.prescriptionsService.remove(+id);
-  }
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.prescriptionsService.remove(+id);
+    }
 }

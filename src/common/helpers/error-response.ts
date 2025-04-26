@@ -2,6 +2,14 @@
 
 import { ErrorResponse } from '../interfaces';
 
+/**
+ * 
+ * @param message 
+ * @param code 
+ * @param errorDetails 
+ * @param path 
+ * @returns 
+ */
 export function buildErrorResponse(
     message: string,
     code: number = 400,
