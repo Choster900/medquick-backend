@@ -38,6 +38,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
     "joi": "^17.13.3",
+    "nestjs-form-data": "^1.9.93",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
