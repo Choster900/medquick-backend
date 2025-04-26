@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsNumber, IsDate, IsNotEmpty, IsUUID, IsArray } from 'class-validator';
-import { Type } from 'class-transformer'; // <-- Asegurate de importar esto
+import { Transform, Type } from 'class-transformer'; // <-- Asegurate de importar esto
 
 export class CreateAppointmentDto {
     @IsOptional()
@@ -17,7 +17,12 @@ export class CreateAppointmentDto {
     medicalProcedureId: string;
 
 
+    @Transform(({ value }) =>
+        Array.isArray(value) ? value : typeof value === 'string' ? [value] : [],
+    )
     @IsArray()
-    comments: string[]
+    @IsString({ each: true })
+    @IsOptional()
+    comments: string[];
 
 }
