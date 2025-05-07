@@ -12,8 +12,8 @@ import { InstitutionsModule } from './institutions/institutions.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { ChatModule } from './chat/chat.module';
-import { NestjsFormDataModule } from 'nestjs-form-data';
 import { ProcedureModule } from './procedure/procedure.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
     imports: [
@@ -29,8 +29,8 @@ import { ProcedureModule } from './procedure/procedure.module';
         AppointmentsModule,
         PrescriptionsModule,
         ChatModule,
-        NestjsFormDataModule,
-        ProcedureModule
+        ProcedureModule,
+        NotificationsModule
     ],
     controllers: [],
     providers: [],
