@@ -1,29 +1,27 @@
-// notifications.service.ts
+// src/notifications/notifications.service.ts
 import { Injectable, Logger } from '@nestjs/common';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 import admin from 'src/firebase/firebase';
 
 @Injectable()
 export class NotificationsService {
-    private readonly logger = new Logger(NotificationsService.name); // cambios
+    private readonly logger = new Logger(NotificationsService.name);
 
     async sendNotification(
-        token: string,
-        title: string,
-        body: string,
-        data: Record<string, string> = {}
+        { token, title, message, data }: CreateNotificationDto
     ) {
-        if (!token || !title || !body) {
+        if (!token || !title || !message) {
             throw new Error('Faltan datos para enviar la notificación');
         }
 
-        const message = {
+        const messagePayload = {
             token,
-            notification: { title, body },
-            data,
+            notification: { title, body: message },
+            data: data || {}, // Usamos un objeto vacío si no se pasa 'data'
         };
 
         try {
-            const response = await admin.messaging().send(message);
+            const response = await admin.messaging().send(messagePayload);
             return response;
         } catch (error) {
             this.logger.error('Error al enviar la notificación', error.stack);
