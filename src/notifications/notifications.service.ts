@@ -4,7 +4,7 @@ import admin from 'src/firebase/firebase';
 
 @Injectable()
 export class NotificationsService {
-    private readonly logger = new Logger(NotificationsService.name);
+    private readonly logger = new Logger(NotificationsService.name); // cambios
 
     async sendNotification(
         token: string,
