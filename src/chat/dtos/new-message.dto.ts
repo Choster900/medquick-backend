@@ -9,6 +9,10 @@ export class NewMessageDto {
     to: string
 
     @IsString()
+    @IsUUID()
+    from: string
+
+    @IsString()
     @MinLength(1)
     message: string
 
