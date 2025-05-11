@@ -14,6 +14,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { ChatModule } from './chat/chat.module';
 import { ProcedureModule } from './procedure/procedure.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
     imports: [
@@ -30,7 +31,8 @@ import { NotificationsModule } from './notifications/notifications.module';
         PrescriptionsModule,
         ChatModule,
         ProcedureModule,
-        NotificationsModule
+        NotificationsModule,
+        CommentsModule
     ],
     controllers: [],
     providers: [],
