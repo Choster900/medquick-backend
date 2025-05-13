@@ -1,0 +1,59 @@
+# Etapa 1: Instalar dependencias
+FROM node:22-alpine3.19 AS deps
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+COPY package-lock.json ./
+
+RUN npm install
+
+
+# Etapa 2: Construir y generar Prisma Client
+FROM node:22-alpine3.19 AS builder
+
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+RUN echo "database_url ::: $DATABASE_URL";
+
+WORKDIR /usr/src/app
+
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY . .
+COPY prisma ./prisma
+
+# Ejecutar migraciones ya existentes (modo producción)
+RUN npx prisma migrate deploy
+
+# Generar Prisma Client después de aplicar las migraciones
+RUN npx prisma generate
+
+# Compilar el proyecto
+RUN npm run build
+
+# Sembrar datos (opcional y si tienes script `seed`)
+RUN npm run seed
+
+
+# Etapa 3: Producción
+FROM node:22-alpine3.19 AS prod
+
+WORKDIR /usr/src/app
+
+ENV NODE_ENV=production
+
+# Copiar solo dependencias necesarias para producción
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+# Copiar solo el resultado del build
+COPY --from=builder /usr/src/app/dist ./dist
+
+COPY --from=builder /usr/src/app/prisma ./prisma
+
+# Usar usuario no root (buena práctica)
+#USER node
+
+EXPOSE 3000
+
+CMD ["node", "dist/src/main.js"]
