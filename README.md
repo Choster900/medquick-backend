@@ -27,6 +27,10 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
 PORT=3000
 DATABASE_URL="file:./dev.db"
 JWT_SECRET=jsonwebtokensecret
+
+FIREBASE_PROJECT_ID=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
 ```
 
 ---
