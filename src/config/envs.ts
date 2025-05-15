@@ -10,7 +10,7 @@ interface EnvsVars {
 }
 
 const envSchema = joi.object<EnvsVars>({
-    PORT: joi.number().default(3000),
+    PORT: joi.number().default(8080),
     DATABASE_URL: joi.string().required(),
     JWT_SECRET: joi.string().required(),
     FIREBASE_PROJECT_ID: joi.string(),

@@ -7,9 +7,9 @@ services:
       dockerfile: dockerfile.prod
       args:
         - DATABASE_URL=${DATABASE_URL}
-    image: medquick-prod
-    ports:
-      - ${PORT}:${PORT}
+    image: northamerica-south1-docker.pkg.dev/microservicios-udemy-454719/medquick-backend/medquick-prod
+    #ports:
+    #  - ${PORT}:${PORT}
     environment:
       PORT: ${PORT}
       JWT_SECRET: ${JWT_SECRET}
