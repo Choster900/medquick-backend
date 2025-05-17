@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient, user } from '@prisma/client';
 import { Socket } from 'socket.io';
+import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
 
 interface ConnectedClients {
     [id: string]: {
@@ -83,6 +84,58 @@ export class ChatService extends PrismaClient implements OnModuleInit {
             data: savedMessage,
         };
     }
+
+    async getAllChats(userId: string) {
+
+        try {
+            const chats = await this.chat.findMany({
+                where: {
+                    OR: [
+                        { chat_user_id: userId },
+                        { chat_doctor_id: userId },
+                    ],
+                },
+                select: {
+                    chat_id: true,
+                    chat_user_id: true,
+                    chat_doctor_id: true,
+                    chat_updated_at: true,
+                    message: {
+                        orderBy: {
+                            message_created_at: 'desc',
+                        },
+                        take: 1,
+                        select: {
+                            message_id: true,
+                            message_content: true,
+                            message_created_at: true,
+                            message_file_type: true,
+                            message_file_path: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    chat_updated_at: 'desc',
+                },
+            });
+
+            const data = chats.map(chat => ({
+                ...chat,
+                message: chat.message[0] || null,
+                messages: undefined,
+            }));
+
+            return buildSuccessResponse(data, 'Chats obtenidos');
+
+        } catch (error) {
+            return buildErrorResponse(error.message, error.status, 500);
+
+        }
+
+    }
+
+
+
 
 
 }
