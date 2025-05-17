@@ -114,9 +114,11 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                 userProfiles: profilesData,
                 userId: newUser.user_id,
             };
-            const sent = await this.emailService.sendEmailWithFileSystemLogs("16adonaysergio@gmail.com");
-            console.log(sent);
 
+            if (userEmail) {
+                await this.emailService.sendWelcomeEmail(userEmail);
+            }
+            
             return buildSuccessResponse({
                 user: newUser,
                 token: this.getJwtToken(jwtPayload),

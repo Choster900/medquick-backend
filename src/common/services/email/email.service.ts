@@ -34,7 +34,7 @@ export class EmailService {
         }
     }
 
-    sendEmailWithFileSystemLogs(to: string | string[]) {
+    sendWelcomeEmail(to: string | string[]) {
         const subject = "Sistema Medquick - Registro de usuario"
 
         const htmlBody =
