@@ -54,11 +54,21 @@ export class ChatService extends PrismaClient implements OnModuleInit {
     async saveMessage(from: string, to: string, message: string) {
 
         try {
+            console.log({ from, to });
+
             // Buscar si el chat ya existe
             let chat = await this.chat.findFirst({
                 where: {
-                    chat_user_id: from,
-                    chat_doctor_id: to,
+                    OR: [
+                        {
+                            chat_user_id: from,
+                            chat_doctor_id: to,
+                        },
+                        {
+                            chat_user_id: to,
+                            chat_doctor_id: from,
+                        },
+                    ],
                 },
             });
 
@@ -138,6 +148,45 @@ export class ChatService extends PrismaClient implements OnModuleInit {
         }
 
     }
+
+    async getMessagesFromChat(chatId: number) {
+        try {
+            const messages = await this.message.findMany({
+                where: {
+                    message_chat_id: chatId,
+                },
+                select: {
+                    message_id: true,
+                    message_user_id: true,
+                    message_content: true,
+                    message_file_type: true,
+                    message_file_path: true,
+                    message_status_id: true,
+                    message_created_at: true,
+                    message_user: {
+                        select: {
+                            user_gender: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        }
+                    }
+                },
+                orderBy: {
+                    message_created_at: 'asc',
+                },
+            });
+
+
+            return buildSuccessResponse(messages, 'Mensajes del chat obtenidos');
+        } catch (error) {
+            return buildErrorResponse(error.message, error.status, 500);
+        }
+    }
+
 
 
 
