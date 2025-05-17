@@ -85,8 +85,8 @@ export class EmailService {
     <body style="margin:0;padding:0;width:100%;height:100%;background-color:white;">
       <div class="container">
         <div class="header">
-          <img src="URL_DEL_CONSULTA" alt="consulta SV Logo" style="width:200px;height:80px;">
-          <img src="URL_DEL_SIS" alt="SIS SV Logo" style="width:200px;height:80px;">
+          <img src="https://i.ibb.co/FdQJZvn/Logo-Completo-white.png" alt="consulta SV Logo" style="width:200px;height:80px;">
+
         </div>
         <div class="article">
           <p>Te informamos que tu cuenta ha sido creada en Medquick, a continuación, encontrarás la contraseña temporal que te permitirá acceder a tu cuenta por primera vez:</p>
