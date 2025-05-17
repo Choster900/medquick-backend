@@ -12,7 +12,13 @@ import { ChatService } from './chat.service';
 import { NewMessageDto } from './dtos/new-message.dto';
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({
+    cors: {
+        origin: '*', // o especifica tu frontend exacto
+        methods: ['GET', 'POST'],
+        credentials: true,
+    }
+})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @WebSocketServer() wss: Server;
@@ -58,7 +64,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('mensaje-desde-cliente')
     async onMessageFromClient(client: Socket, payload: NewMessageDto): Promise<void> {
         try {
-            const token = client.handshake.headers.authenticateionjwt as string;
+            const token = client.handshake.query.token as string
+                || client.handshake.headers.authenticateionjwt as string;
             const datosJwt = this.jwtService.decode(token) as JwtPayload;
 
             if (!datosJwt || !datosJwt.userId) {
