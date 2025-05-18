@@ -77,8 +77,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const mensaje = {
                 fullName: this.chatService.getUserFullName(client.id),
                 message: payload.message || '¡Mensaje vacío!',
-                from: client.data.userId,
+                from: datosJwt.userId,
             };
+
+            console.log({ mensaje });
 
             // Emitir al receptor
             this.wss.to(payload.to).emit('mensaje-desde-servidor', mensaje);
