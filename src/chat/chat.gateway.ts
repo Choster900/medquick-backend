@@ -85,6 +85,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log(`Cliente ${client.id} se unió a la sala: ${chatRoom}`);
     }
 
+    @SubscribeMessage('salir-de-chat')
+    handleLeaveChat(client: Socket, chatRoom: string): void {
+        client.leave(chatRoom);
+        console.log(`Cliente ${client.id} salió de la sala: ${chatRoom}`);
+    }
+
     @SubscribeMessage('mensaje-desde-cliente')
     async onMessageFromClient(client: Socket, payload: NewMessageDto): Promise<void> {
         try {
@@ -109,8 +115,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             const chatRoomId = this.generarChatId(datosJwt.userId, payload.to);
 
-         /*    console.log(mensaje); */
-         /*    console.log(chatRoomId); */
+            /*    console.log(mensaje); */
+            /*    console.log(chatRoomId); */
 
 
 
