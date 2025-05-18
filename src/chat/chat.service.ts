@@ -72,6 +72,8 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 },
             });
 
+            console.log({ chat });
+
             if (!chat) {
                 chat = await this.chat.create({
                     data: {
