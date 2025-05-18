@@ -4,7 +4,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/common/decorators';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
 import { use } from 'passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('JWT-auth')
 @Controller('chat')
 export class ChatController {
     constructor(private readonly chatService: ChatService) { }

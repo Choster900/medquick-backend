@@ -90,6 +90,7 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 },
             });
 
+            console.log(savedMessage);
 
 
             return buildSuccessResponse(savedMessage, 'Chat guardado');
