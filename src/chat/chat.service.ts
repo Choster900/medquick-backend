@@ -82,9 +82,8 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                     },
                 });
             }
-            console.log("despues de guardar ", { chat, message });
+            console.log("Antes de guardar ", { chat, message });
 
-            console.log("Intentando guardar mensaje...");
             const savedMessage = await this.message.create({
                 data: {
                     message_user_id: from,
@@ -93,17 +92,13 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                     message_status_id: 1,
                 },
             });
-            setTimeout(() => {
-                console.log("¿Llega aquí después de guardar?");
-            }, 5000);
-            console.log("MENSAJE GUARDADO", savedMessage);
+
+            console.log(savedMessage);
 
 
             return buildSuccessResponse(savedMessage, 'Chat guardado');
 
         } catch (error) {
-            console.error("ERROR AL GUARDAR MENSAJE:", error); // <-- agrega esto
-
             return buildErrorResponse(error.message, error.status, 500);
         }
 
