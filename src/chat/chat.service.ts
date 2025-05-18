@@ -102,6 +102,8 @@ export class ChatService extends PrismaClient implements OnModuleInit {
             return buildSuccessResponse(savedMessage, 'Chat guardado');
 
         } catch (error) {
+            console.error("ERROR AL GUARDAR MENSAJE:", error); // <-- agrega esto
+
             return buildErrorResponse(error.message, error.status, 500);
         }
 
