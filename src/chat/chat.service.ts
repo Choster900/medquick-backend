@@ -117,7 +117,39 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 select: {
                     chat_id: true,
                     chat_user_id: true,
+                    chat_user: {
+                        select: {
+                            user_id: true,
+                            user_state_id: true,
+                            user_gender: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                            user_address: true,
+                        }
+                    },
                     chat_doctor_id: true,
+                    chat_doctor: {
+                        select: {
+                            user_id: true,
+                            user_state_id: true,
+                            user_gender: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                            user_address: true,
+                        }
+                    },
                     chat_updated_at: true,
                     message: {
                         orderBy: {
