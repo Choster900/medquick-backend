@@ -17,6 +17,11 @@ async function bootstrap() {
 
     });
 
+    app.enableCors({
+        origin: '*', // o ['http://localhost:5173'] si hay varios
+        credentials: true, // solo si usas cookies, auth, etc.
+    });
+
     app.setGlobalPrefix('api');
 
     app.useGlobalPipes(

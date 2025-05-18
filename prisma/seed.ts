@@ -17,6 +17,7 @@ import {
 import { seedAuthUserProfile } from './seeders/auth-user-profile.seede';
 import { seedExams } from './seeders/exam';
 import { seedMessageStatuses } from './seeders/message_status';
+import { seedChats } from './seeders/init-chat.seeder';
 
 const prisma = new PrismaClient();
 
@@ -38,6 +39,7 @@ async function main() {
     await seedInstitutions(prisma, now);
     await seedBranches(prisma, now);
     await seedUsers(prisma);
+    await seedChats(prisma, now);
     await seedSpecialities(prisma)
 
     // === Seguridad ===

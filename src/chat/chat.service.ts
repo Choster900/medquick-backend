@@ -72,7 +72,7 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-            console.log("Antes de guardar ", { chat, message });
+           // console.log("Antes de guardar ", { chat, message });
 
             if (!chat) {
                 chat = await this.chat.create({
@@ -82,7 +82,7 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                     },
                 });
             }
-            console.log("Antes de guardar ", { chat, message });
+            //console.log("Antes de guardar ", { chat, message });
 
             const savedMessage = await this.message.create({
                 data: {
@@ -93,12 +93,14 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-            console.log(savedMessage);
+           // console.log(savedMessage);
 
 
             return buildSuccessResponse(savedMessage, 'Chat guardado');
 
         } catch (error) {
+            console.log(error);
+
             return buildErrorResponse(error.message, error.status, 500);
         }
 

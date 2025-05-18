@@ -15,7 +15,7 @@ export class ChatController {
     @Get('get-chats')
     @UseGuards(JwtAuthGuard)
     getChatsByUser(@User() user: CurrentUser) {
-        console.log(user);
+       // console.log(user);
 
         return this.chatService.getAllChats(user.user_id);
     }
