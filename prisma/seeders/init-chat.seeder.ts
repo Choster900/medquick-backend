@@ -14,15 +14,15 @@ export async function seedChats(prisma: PrismaClient, now: Date) {
     });
 
     const doctor = await prisma.user.findUnique({
-        where: { user_email: 'doctor.medical@example.com' }
+        where: { user_email: 'dr.gomez@example.com' }
     });
 
     const patient1 = await prisma.user.findUnique({
-        where: { user_email: 'patient.one@example.com' }
+        where: { user_email: 'luis.hernandez@example.com' }
     });
 
     const patient2 = await prisma.user.findUnique({
-        where: { user_email: 'patient.two@example.com' }
+        where: { user_email: 'jorge.castro@example.com' }
     });
 
     if (!admin || !medicalAdmin || !doctor || !patient1 || !patient2) {
