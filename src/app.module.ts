@@ -15,6 +15,7 @@ import { ChatModule } from './chat/chat.module';
 import { ProcedureModule } from './procedure/procedure.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CommentsModule } from './comments/comments.module';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
     imports: [
@@ -32,7 +33,8 @@ import { CommentsModule } from './comments/comments.module';
         ChatModule,
         ProcedureModule,
         NotificationsModule,
-        CommentsModule
+        CommentsModule,
+        DevicesModule
     ],
     controllers: [],
     providers: [],

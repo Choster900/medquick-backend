@@ -2,6 +2,8 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient, user } from '@prisma/client';
 import { Socket } from 'socket.io';
 import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
+import { CreateNotificationDto } from 'src/notifications/dto/create-notification.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 interface ConnectedClients {
     [id: string]: {
@@ -12,6 +14,12 @@ interface ConnectedClients {
 
 @Injectable()
 export class ChatService extends PrismaClient implements OnModuleInit {
+
+    constructor(
+        private readonly notificationsService: NotificationsService,
+    ) {
+        super();
+    }
 
     private connectedClients: ConnectedClients = {}
 
@@ -72,7 +80,7 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-           // console.log("Antes de guardar ", { chat, message });
+            // console.log("Antes de guardar ", { chat, message });
 
             if (!chat) {
                 chat = await this.chat.create({
@@ -93,7 +101,25 @@ export class ChatService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-           // console.log(savedMessage);
+            const tokens = await this.user_devices.findMany({
+                where: { user_id: to },
+                select: {
+                    user_devices_token: true,
+                    user: {
+                        select: {
+                            user_first_name: true
+                        }
+                    }
+                }
+            });
+
+            await Promise.all(tokens.map(({ user_devices_token, user }) =>
+                this.notificationsService.sendNotification({
+                    token: user_devices_token,
+                    title: 'Mensaje de ' + user.user_first_name,
+                    message: message,
+                })
+            ));
 
 
             return buildSuccessResponse(savedMessage, 'Chat guardado');

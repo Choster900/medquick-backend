@@ -18,7 +18,7 @@ import { EmailService } from 'src/common/services/email/email.service';
                 return {
                     secret: envs.JWT_SECRET,
                     signOptions: {
-                        expiresIn: '2h'
+                        //expiresIn: '2h'
                     }
                 }
             }

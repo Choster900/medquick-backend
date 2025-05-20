@@ -5,11 +5,11 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/interfaces/current-user.interface';
-import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, FindAppointmentsDto, CancelAppointmentDto } from './dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { CreateAppointmentDto, ScheduleAppointmentDto, FindAppointmentsDto, CancelAppointmentDto } from './dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { fileFilter, fileNamer } from 'src/exams/helpers';
 import { diskStorage } from 'multer';
-import { ApiBasicAuth, ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiSecurity } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiSecurity } from '@nestjs/swagger';
 
 @ApiBearerAuth('JWT-auth')
 @Controller('appointments')
@@ -73,11 +73,11 @@ export class AppointmentsController {
 
     @Get('filter')
     @ApiOperation({ summary: 'Filtrar citas por usuario, sucursal, doctor o institución' })
-    @ApiQuery({ name: 'userId', required: false, description: 'Si es true, retornara las citas por usuario' })
-    @ApiQuery({ name: 'branchId', required: false, description: 'Si es true, retornara las citas por sucursal' })
-    @ApiQuery({ name: 'doctorUserId', required: false, description: 'Si es true, retornara las citas por medicos' })
-    @ApiQuery({ name: 'institutionId', required: false, description: 'Si es true, retornara las citas por institucion' })
-    @ApiQuery({ name: 'all', required: false, description: 'Si es true, retornara todas las citas' })
+    @ApiQuery({ name: 'userId', required: false, type: String })
+    @ApiQuery({ name: 'branchId', required: false, type: String })
+    @ApiQuery({ name: 'doctorUserId', required: false, type: String })
+    @ApiQuery({ name: 'institutionId', required: false, type: String })
+    @ApiQuery({ name: 'all', required: false, type: Boolean })
     @UseGuards(JwtAuthGuard)
     async findAppointments(@Query() query: FindAppointmentsDto) {
         const { userId, branchId, doctorUserId, institutionId, all } = query;
@@ -127,13 +127,13 @@ export class AppointmentsController {
         return this.appointmentsService.findOne(id);
     }
 
-    @Patch(':id')
-    @ApiOperation({ summary: 'Actualizar datos de una cita' })
-    @ApiParam({ name: 'id', type: 'string' })
-    @ApiBody({ type: UpdateAppointmentDto })
-    update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
-        return this.appointmentsService.update(+id, updateAppointmentDto);
-    }
+    /*  @Patch(':id')
+     @ApiOperation({ summary: 'Actualizar datos de una cita' })
+     @ApiParam({ name: 'id', type: 'string' })
+     @ApiBody({ type: UpdateAppointmentDto })
+     update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
+         return this.appointmentsService.update(+id, updateAppointmentDto);
+     } */
 
     @Delete(':id')
     @ApiOperation({ summary: 'Cancelar una cita' })
