@@ -38,10 +38,10 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('MedQuick Doc')
         .setVersion('1.0')
-        .addSecurity('basic', {
+        /* .addSecurity('basic', {
             type: 'http',
             scheme: 'basic',
-        })
+        }) */
         .addBearerAuth(
             {
                 type: 'http',
@@ -55,7 +55,7 @@ async function bootstrap() {
         ).build();
 
     const documentFactory = () => SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('swagger/doc', app, documentFactory);
+    SwaggerModule.setup('api', app, documentFactory);
 
     const PORT = envs.PORT || 8080;
     await app.listen(PORT);
