@@ -35,6 +35,7 @@ export class BranchesController {
     @Get()
     @ApiOperation({ summary: 'Obtener todas las sucursales' })
     @ApiResponse({ status: 200, description: 'Lista de sucursales' })
+    @ApiParam({ name: 'institutionId', required: false, description: 'ID de la institución (opcional)' })
     findAll(@Query('institutionId') institutionId?: string) {
         return this.branchesService.findAll(institutionId);
     }
