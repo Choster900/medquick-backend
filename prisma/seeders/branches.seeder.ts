@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 export async function seedBranches(prisma: PrismaClient, now: Date) {
     const minsInstitution = await prisma.institution.findFirst({ where: { institution_acronym: 'MINSAL' } });
