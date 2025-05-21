@@ -3,7 +3,8 @@ import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 
 @Module({
-  controllers: [NotificationsController],
-  providers: [NotificationsService],
+    controllers: [NotificationsController],
+    providers: [NotificationsService],
+    exports: [NotificationsService]
 })
-export class NotificationsModule {}
+export class NotificationsModule { }

@@ -13,12 +13,14 @@ import { Profiles } from './interfaces/profiles.interface';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { buildErrorResponse } from 'src/common/helpers/error-response';
 import { buildSuccessResponse } from 'src/common/helpers/success-response';
+import { EmailService } from 'src/common/services/email/email.service';
 
 @Injectable()
 export class AuthService extends PrismaClient implements OnModuleInit {
 
     constructor(
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly emailService: EmailService,
     ) {
         super();
     }
@@ -113,6 +115,10 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                 userId: newUser.user_id,
             };
 
+            if (userEmail) {
+                await this.emailService.sendWelcomeEmail(userEmail);
+            }
+            
             return buildSuccessResponse({
                 user: newUser,
                 token: this.getJwtToken(jwtPayload),

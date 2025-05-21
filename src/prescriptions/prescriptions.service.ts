@@ -2,7 +2,7 @@ import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 import { PrismaClient } from '@prisma/client';
-import { buildErrorResponse } from 'src/common/helpers';
+import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
 
 @Injectable()
 export class PrescriptionsService extends PrismaClient implements OnModuleInit {
@@ -60,7 +60,16 @@ export class PrescriptionsService extends PrismaClient implements OnModuleInit {
                 },
             });
 
-            return prescriptionAndItems;
+            await this.medical_appointment.update({
+                where: {
+                    medical_appointment_id: medicalAppointmentId
+                },
+                data: {
+                    medical_appointment_state_id: 3
+                }
+            })
+
+            return buildSuccessResponse(prescriptionAndItems, "Prescipcion creada");
         } catch (error) {
 
             if (error instanceof HttpException) throw error;

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  medquick-backend:
+    build:
+      context: ./
+      dockerfile: dockerfile.prod
+      args:
+        - DATABASE_URL=${DATABASE_URL}
+    image: northamerica-south1-docker.pkg.dev/microservicios-udemy-454719/medquick-backend/medquick-prod
+    #ports:
+    #  - ${PORT}:${PORT}
+    environment:
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
+      MAILER_SERVICE: gmail
+      MAILER_EMAIL: serujiosaru7890@gmail.com
+      MAILER_SECRET_KEY: ivno unil nbxb fffc

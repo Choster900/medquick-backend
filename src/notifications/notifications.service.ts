@@ -1,7 +1,7 @@
 // src/notifications/notifications.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import admin from 'src/firebase/firebase';
+import admin from 'src/common/firebase/firebase';
 
 @Injectable()
 export class NotificationsService {
