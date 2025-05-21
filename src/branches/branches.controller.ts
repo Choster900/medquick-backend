@@ -7,6 +7,7 @@ import {
     Param,
     Delete,
     ParseUUIDPipe,
+    Query,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -34,8 +35,8 @@ export class BranchesController {
     @Get()
     @ApiOperation({ summary: 'Obtener todas las sucursales' })
     @ApiResponse({ status: 200, description: 'Lista de sucursales' })
-    findAll() {
-        return this.branchesService.findAll();
+    findAll(@Query('institutionId') institutionId?: string) {
+        return this.branchesService.findAll(institutionId);
     }
 
     @Get(':id')

@@ -13,8 +13,8 @@ export class ProcedureController {
     }
 
     @Get()
-    findAll(@Query('specialtyId') specialtyId?: number) {
-        return this.procedureService.findAll(specialtyId);
+    findAll(@Query('branchId') branchId?: string) {
+        return this.procedureService.findAll(branchId);
     }
 
     @Get(':id')

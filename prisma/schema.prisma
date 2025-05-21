@@ -48,8 +48,8 @@ model user_devices {
 }
 
 model user {
-    user_id                          String                     @id @default(uuid())
-    user_state                       user_state?                @relation(fields: [user_state_id], references: [user_state_id], onDelete: Cascade)
+    user_id                          String                   @id @default(uuid())
+    user_state                       user_state?              @relation(fields: [user_state_id], references: [user_state_id], onDelete: Cascade)
     user_state_id                    Int?
     user_gender                      Gender
     user_first_name                  String
@@ -58,33 +58,34 @@ model user {
     user_first_lastname              String
     user_second_lastname             String
     user_third_lastname              String
-    user_email                       String?                    @unique
+    user_email                       String?                  @unique
     user_password                    String
-    user_dui                         String?                    @unique
+    user_dui                         String?                  @unique
     user_birthdate                   DateTime
     user_phone_number                String
     user_address                     String
-    user_create_at                   DateTime                   @default(now())
-    user_update_at                   DateTime                   @updatedAt
-    users_branches_specialty         users_branches_specialty[]
+    user_create_at                   DateTime                 @default(now())
+    user_update_at                   DateTime                 @updatedAt
+    users_specialty                  users_specialty[]
     non_registered_patient           non_registered_patient[]
-    medical_appointment_as_patient   medical_appointment[]      @relation("PatientUser")
-    medical_appointment_as_doctor    medical_appointment[]      @relation("DoctorUser")
-    medical_appointment_as_scheduler medical_appointment[]      @relation("AppointmentScheduler")
+    medical_appointment_as_patient   medical_appointment[]    @relation("PatientUser")
+    medical_appointment_as_doctor    medical_appointment[]    @relation("DoctorUser")
+    medical_appointment_as_scheduler medical_appointment[]    @relation("AppointmentScheduler")
     branch_comment                   branch_comment[]
-    medical_comment_as_user          medical_comment[]          @relation("CommentUser")
-    medical_comment_as_doctor        medical_comment[]          @relation("CommentDoctor")
-    chat                             chat[]                     @relation("ChatUser")
-    chat_as_doctor                   chat[]                     @relation("ChatDoctor")
+    medical_comment_as_user          medical_comment[]        @relation("CommentUser")
+    medical_comment_as_doctor        medical_comment[]        @relation("CommentDoctor")
+    chat                             chat[]                   @relation("ChatUser")
+    chat_as_doctor                   chat[]                   @relation("ChatDoctor")
     message                          message[]
     auth_user_profile                auth_user_profile[]
-    users_specialty                  users_specialty[]
+    //users_specialty                  users_specialty[]
     user_devices                     user_devices[]
 }
 
 model institution {
     institution_id          String   @id @default(uuid())
     institution_name        String   @unique
+    institution_logo        String?
     institution_acronym     String   @unique
     institution_description String?
     institution_status      Boolean  @default(true)
@@ -109,6 +110,8 @@ model branch {
     branch_updated_at   DateTime              @updatedAt
     medical_appointment medical_appointment[]
     branch_comment      branch_comment[]
+    branches_specialty  branches_specialty[]
+    medical_procedure   medical_procedure[]
 }
 
 model administration_route {
@@ -158,22 +161,22 @@ model specialty {
     specialty_created_at DateTime @default(now())
     specialty_update_at  DateTime @updatedAt
 
-    users_branches_specialty users_branches_specialty[]
+    branches_specialty branches_specialty[]
     /**
      * medical_appointment      medical_appointment[]
      */
-    medical_procedures       medical_procedure[]
-    users_specialty          users_specialty[]
+    medical_procedures medical_procedure[]
+    users_specialty    users_specialty[]
 }
 
-model users_branches_specialty {
-    users_branches_specialty_id         Int       @id @default(autoincrement())
-    user                                user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-    user_id                             String
-    specialty                           specialty @relation(fields: [specialty_id], references: [specialty_id], onDelete: Cascade)
-    specialty_id                        Int
-    users_branches_specialty_created_at DateTime  @default(now())
-    users_branches_specialty_update_at  DateTime  @updatedAt
+model branches_specialty {
+    branches_specialty_id         Int       @id @default(autoincrement())
+    branch                        branch    @relation(fields: [branch_id], references: [branch_id], onDelete: Cascade)
+    branch_id                     String
+    specialty                     specialty @relation(fields: [specialty_id], references: [specialty_id], onDelete: Cascade)
+    specialty_id                  Int
+    branches_specialty_created_at DateTime  @default(now())
+    branches_specialty_update_at  DateTime  @updatedAt
 }
 
 model medical_appointment_state {
@@ -403,6 +406,7 @@ model security_permission {
 model medical_procedure {
     medical_procedure_id                    String   @id @default(uuid())
     specialty_id                            Int
+    branch_id                               String
     medical_procedure_name                  String
     medical_procedure_photo_url             String
     medical_procedure_estimated_duration    String
@@ -415,6 +419,7 @@ model medical_procedure {
     medical_procedure_update_at             DateTime @updatedAt
 
     specialty           specialty                 @relation(fields: [specialty_id], references: [specialty_id])
+    branch              branch                    @relation(fields: [branch_id], references: [branch_id])
     required_exams      procedure_required_exam[]
     medical_appointment medical_appointment[]
 
