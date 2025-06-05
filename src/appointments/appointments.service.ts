@@ -250,6 +250,94 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             }
 
             const appointments = await this.medical_appointment.findMany({
+                select: {
+                    medical_appointment_id: true,
+                    medical_appointment_date_time: true,
+                    medical_appointment_cancellation_reason: true,
+                    medical_appointment_notes: true,
+                    medical_appointment_created_at: true,
+                    doctor_user: {
+                        select: {
+                            user_id: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        },
+                    },
+                    appointment_scheduler: {
+                        select: {
+                            user_id: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        },
+                    },
+                    patient_user: {
+                        select: {
+                            user_id: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        },
+                    },
+                    branch: {
+                        select: {
+                            branch_id: true,
+                            branch_name: true,
+                            branch_acronym: true,
+                            branch_description: true,
+                            branch_full_address: true,
+                            institution: {
+                                select: {
+                                    institution_id: true,
+                                    institution_name: true,
+                                    institution_acronym: true,
+                                    institution_description: true,
+                                },
+                            },
+                        },
+                    },
+                    medical_appointment_state: {
+                        select: {
+                            medical_appointment_state_id: true,
+                            medical_appointment_state_description: true,
+                        },
+                    },
+                    medical_exam: {
+                        select: {
+                            medical_exam_id: true,
+                            medical_exam_name_file: true,
+                            medical_exam_path: true,
+                            medical_exam_description: true,
+                            medical_exam_origin_examp: true,
+                            medical_exam_date_up: true,
+                            file_type: {
+                                select: {
+                                    file_type_name: true,
+                                    file_type_mime_type: true,
+                                    file_type_extension: true,
+
+                                }
+                            }
+                        }
+
+                    }
+                },
                 where: {
                     medical_appointment_state_id: medicalAppointmentState
                 }
