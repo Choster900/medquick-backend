@@ -108,6 +108,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             if (error instanceof HttpException) {
                 throw error;
             }
+            console.log(error);
 
             // Manejo de errores
             return buildErrorResponse(error.message, error.status, 500);
@@ -367,6 +368,21 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
 
             if (existingAppointment) {
                 throw new Error('La cita ya fue asignada a un doctor y un horario');
+            }
+
+            // Validar que el doctor no tenga otra cita en esa hora
+            const conflictingAppointment = await this.medical_appointment.findFirst({
+                where: {
+                    doctor_user_id: doctorUserId,
+                    medical_appointment_date_time: new Date(medicalAppointmentDateTime),
+                    medical_appointment_state_id: {
+                        in: [2, 5, 6, 8], // Estados activos: programada, reagendada, en progreso
+                    },
+                },
+            });
+
+            if (conflictingAppointment) {
+                throw new Error('El doctor ya tiene una cita programada en esa hora');
             }
 
             await this.addAppointmentStatusHistory({
