@@ -414,8 +414,38 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                 },
             });
 
+            if (updatedAppointment.patient_user_id && updatedAppointment.doctor_user_id) {
+                let existingChat = await this.chat.findFirst({
+                    where: {
+                        OR: [
+                            {
+                                chat_user_id: updatedAppointment.patient_user_id,
+                                chat_doctor_id: updatedAppointment.doctor_user_id,
+                            },
+                            {
+                                chat_user_id:  updatedAppointment.doctor_user_id,
+                                chat_doctor_id: updatedAppointment.patient_user_id,
+                            },
+                        ],
+                    },
+                });
+
+                if (!existingChat) {
+                    await this.chat.create({
+                        data: {
+                            chat_user_id: updatedAppointment.patient_user_id,
+                            chat_doctor_id: updatedAppointment.doctor_user_id,
+                        },
+                    });
+                }
+            } else {
+                throw new Error('El usuario del paciente o del doctor no está definido para crear el chat');
+            }
+
             return buildSuccessResponse(updatedAppointment, 'Cita programada con éxito');
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof HttpException) throw error;
             return buildErrorResponse(
                 error.message || 'Error interno del servidor',
