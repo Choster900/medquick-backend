@@ -108,6 +108,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             if (error instanceof HttpException) {
                 throw error;
             }
+            console.log(error);
 
             // Manejo de errores
             return buildErrorResponse(error.message, error.status, 500);
@@ -250,6 +251,94 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             }
 
             const appointments = await this.medical_appointment.findMany({
+                select: {
+                    medical_appointment_id: true,
+                    medical_appointment_date_time: true,
+                    medical_appointment_cancellation_reason: true,
+                    medical_appointment_notes: true,
+                    medical_appointment_created_at: true,
+                    doctor_user: {
+                        select: {
+                            user_id: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        },
+                    },
+                    appointment_scheduler: {
+                        select: {
+                            user_id: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        },
+                    },
+                    patient_user: {
+                        select: {
+                            user_id: true,
+                            user_first_name: true,
+                            user_second_name: true,
+                            user_third_name: true,
+                            user_first_lastname: true,
+                            user_second_lastname: true,
+                            user_third_lastname: true,
+                            user_email: true,
+                            user_phone_number: true,
+                        },
+                    },
+                    branch: {
+                        select: {
+                            branch_id: true,
+                            branch_name: true,
+                            branch_acronym: true,
+                            branch_description: true,
+                            branch_full_address: true,
+                            institution: {
+                                select: {
+                                    institution_id: true,
+                                    institution_name: true,
+                                    institution_acronym: true,
+                                    institution_description: true,
+                                },
+                            },
+                        },
+                    },
+                    medical_appointment_state: {
+                        select: {
+                            medical_appointment_state_id: true,
+                            medical_appointment_state_description: true,
+                        },
+                    },
+                    medical_exam: {
+                        select: {
+                            medical_exam_id: true,
+                            medical_exam_name_file: true,
+                            medical_exam_path: true,
+                            medical_exam_description: true,
+                            medical_exam_origin_examp: true,
+                            medical_exam_date_up: true,
+                            file_type: {
+                                select: {
+                                    file_type_name: true,
+                                    file_type_mime_type: true,
+                                    file_type_extension: true,
+
+                                }
+                            }
+                        }
+
+                    }
+                },
                 where: {
                     medical_appointment_state_id: medicalAppointmentState
                 }
@@ -281,6 +370,21 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                 throw new Error('La cita ya fue asignada a un doctor y un horario');
             }
 
+            // Validar que el doctor no tenga otra cita en esa hora
+            const conflictingAppointment = await this.medical_appointment.findFirst({
+                where: {
+                    doctor_user_id: doctorUserId,
+                    medical_appointment_date_time: new Date(medicalAppointmentDateTime),
+                    medical_appointment_state_id: {
+                        in: [2, 5, 6, 8], // Estados activos: programada, reagendada, en progreso
+                    },
+                },
+            });
+
+            if (conflictingAppointment) {
+                throw new Error('El doctor ya tiene una cita programada en esa hora');
+            }
+
             await this.addAppointmentStatusHistory({
                 medicalAppointmentId,
                 previousStatusId: 1, // Pendiente
@@ -310,8 +414,38 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                 },
             });
 
+            if (updatedAppointment.patient_user_id && updatedAppointment.doctor_user_id) {
+                let existingChat = await this.chat.findFirst({
+                    where: {
+                        OR: [
+                            {
+                                chat_user_id: updatedAppointment.patient_user_id,
+                                chat_doctor_id: updatedAppointment.doctor_user_id,
+                            },
+                            {
+                                chat_user_id:  updatedAppointment.doctor_user_id,
+                                chat_doctor_id: updatedAppointment.patient_user_id,
+                            },
+                        ],
+                    },
+                });
+
+                if (!existingChat) {
+                    await this.chat.create({
+                        data: {
+                            chat_user_id: updatedAppointment.patient_user_id,
+                            chat_doctor_id: updatedAppointment.doctor_user_id,
+                        },
+                    });
+                }
+            } else {
+                throw new Error('El usuario del paciente o del doctor no está definido para crear el chat');
+            }
+
             return buildSuccessResponse(updatedAppointment, 'Cita programada con éxito');
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof HttpException) throw error;
             return buildErrorResponse(
                 error.message || 'Error interno del servidor',

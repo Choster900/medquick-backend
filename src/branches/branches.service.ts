@@ -1,3 +1,4 @@
+import { institution } from './../../node_modules/.prisma/client/index.d';
 import { PrismaClient } from '@prisma/client';
 import { ForbiddenException, HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 
@@ -55,9 +56,34 @@ export class BranchesService extends PrismaClient implements OnModuleInit {
 
     }
 
-    async findAll() {
+    async findAll(institutionId?: string) {
         try {
-            const branches = await this.branch.findMany({ where: { branch_status: true } });
+            const branches = await this.branch.findMany(
+                {
+                    select: {
+                        branch_id: true,
+                        institution_id: true,
+                        institution: {
+                            select: {
+                                institution_acronym: true,
+                                institution_name: true,
+                            }
+                        },
+                        branch_name: true,
+                        branch_acronym: true,
+                        branch_description: true,
+                        branch_longitude: true,
+                        branch_latitude: true,
+                        branch_full_address: true,
+                        branch_status: true,
+                    },
+                    where:
+                        institutionId ?
+                            { institution_id: institutionId, branch_status: true } :
+                            { branch_status: true, },
+
+                }
+            );
             return buildSuccessResponse(branches);
         } catch (error) {
             if (error instanceof HttpException) throw error;

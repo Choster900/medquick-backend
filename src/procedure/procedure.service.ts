@@ -24,6 +24,7 @@ export class ProcedureService extends PrismaClient implements OnModuleInit {
                 medicalProcedureAvailableOnline,
                 medicalProcedureAvailableSlots,
                 examsnRequired,
+                branchId,
             } = createProcedureDto;
 
 
@@ -45,6 +46,7 @@ export class ProcedureService extends PrismaClient implements OnModuleInit {
             const procedure = await this.medical_procedure.create({
                 data: {
                     specialty_id: specialtyId,
+                    branch_id: branchId,
                     medical_procedure_name: medicalProcedureName,
                     medical_procedure_photo_url: medicalProcedurePhotoUrl,
                     medical_procedure_estimated_duration: medicalProcedureEstimatedDuration,
@@ -79,20 +81,50 @@ export class ProcedureService extends PrismaClient implements OnModuleInit {
 
     }
 
-    async findAll(specialtyId?: number) {
+    async findAll(branchId?: string) {
         try {
             // Filtramos solo por specialtyId
             const procedures = await this.medical_procedure.findMany({
-                where: specialtyId ? { specialty_id: specialtyId } : {}, // Solo filtra si specialtyId está presente
+                where: branchId ? { branch_id: branchId } : {}, // Solo filtra si specialtyId está presente
+                select: {
+                    medical_procedure_id: true,
+                    specialty_id: true,
+                    specialty: {
+                        select: {
+                            specialty_id: true,
+                            specialty_name: true,
+                            specialt_description: true,
+                        }
+                    },
+                    branch_id: true,
+                    branch: {
+                        select: {
+                            branch_id: true,
+                            institution_id: true,
+                            branch_name: true,
+                            branch_acronym: true,
+                            branch_status: true,
+                        }
+                    },
+                    medical_procedure_name: true,
+                    medical_procedure_photo_url: true,
+                    medical_procedure_estimated_duration: true,
+                    medical_procedure_requires_confirmation: true,
+                    medical_procedure_cost: true,
+                    medical_procedure_available_online: true,
+                    medical_procedure_available_slots: true,
+                    medical_procedure_is_active: true
+                }
 
-                include: {
+                /* include: {
                     specialty: true, // Incluye la especialidad
                     required_exams: {
                         include: {
                             exam: true, // Incluye los exámenes asociados
                         },
                     },
-                },
+                    branch: true
+                }, */
             });
 
             return buildSuccessResponse(procedures, 'Procedimientos obtenidos con éxito');

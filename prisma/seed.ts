@@ -19,7 +19,7 @@ import { seedExams } from './seeders/exam';
 import { seedMessageStatuses } from './seeders/message_status';
 import { seedChats } from './seeders/init-chat.seeder';
 import { seedMedicalProcedures } from './seeders/medical-procedures.seed';
-import { seedUsersBranchesSpecialty } from './seeders/seed-users-branches-specialty';
+import { seedBranchesSpecialty } from './seeders/branches_specialty';
 
 const prisma = new PrismaClient();
 
@@ -43,7 +43,7 @@ async function main() {
     await seedUsers(prisma);
     await seedChats(prisma, now);
     await seedSpecialities(prisma)
-    await seedUsersBranchesSpecialty(prisma, now)
+    await seedBranchesSpecialty(prisma, now)
     await seedMedicalProcedures(prisma, now);
 
     // === Seguridad ===

@@ -40,7 +40,7 @@ export class SpecialtiesService extends PrismaClient implements OnModuleInit {
 
     async addSpecialtyToUser(userId: string, specialtyId: number) {
         try {
-            const userSpecialty = await this.users_branches_specialty.create({
+            const userSpecialty = await this.users_specialty.create({
                 data: {
                     user_id: userId,
                     specialty_id: specialtyId,
@@ -57,7 +57,7 @@ export class SpecialtiesService extends PrismaClient implements OnModuleInit {
 
     async removeSpecialtyFromUser(userId: string, specialtyId: number) {
         try {
-            const deletedUserSpecialty = await this.users_branches_specialty.deleteMany({
+            const deletedUserSpecialty = await this.users_specialty.deleteMany({
                 where: {
                     user_id: userId,
                     specialty_id: specialtyId,
