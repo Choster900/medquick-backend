@@ -4,12 +4,18 @@ import { BadRequestException, HttpException, Injectable, OnModuleInit } from '@n
 import { buildErrorResponse, buildSuccessResponse } from 'src/common/helpers';
 import { AppointmentStatusChangeDto } from './interfaces/appointment-status-change.dto';
 import { CreateAppointmentDto, ScheduleAppointmentDto, UpdateAppointmentDto, CancelAppointmentDto } from './dto';
+import { EmailService } from 'src/common/services/email/email.service';
 
 @Injectable()
 export class AppointmentsService extends PrismaClient implements OnModuleInit {
 
     onModuleInit() {
         this.$connect()
+    }
+    constructor(
+        private readonly emailService: EmailService,
+    ) {
+        super();
     }
 
     async create(
@@ -423,7 +429,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                                 chat_doctor_id: updatedAppointment.doctor_user_id,
                             },
                             {
-                                chat_user_id:  updatedAppointment.doctor_user_id,
+                                chat_user_id: updatedAppointment.doctor_user_id,
                                 chat_doctor_id: updatedAppointment.patient_user_id,
                             },
                         ],
@@ -438,6 +444,23 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
                         },
                     });
                 }
+
+                const email = await this.user.findUnique({
+                    select: {
+                        user_email: true,
+                    },
+                    where: {
+                        user_id: updatedAppointment.patient_user_id,
+                    }
+                })
+                console.log(email);
+
+                if (email && email.user_email) {
+                    await this.emailService.sendAppointmentConfirmationEmail(email.user_email, new Date(medicalAppointmentDateTime).toISOString());
+                } else {
+                    throw new Error('El correo electrónico del paciente no está disponible');
+                }
+
             } else {
                 throw new Error('El usuario del paciente o del doctor no está definido para crear el chat');
             }
@@ -445,7 +468,7 @@ export class AppointmentsService extends PrismaClient implements OnModuleInit {
             return buildSuccessResponse(updatedAppointment, 'Cita programada con éxito');
         } catch (error) {
             console.log(error);
-            
+
             if (error instanceof HttpException) throw error;
             return buildErrorResponse(
                 error.message || 'Error interno del servidor',

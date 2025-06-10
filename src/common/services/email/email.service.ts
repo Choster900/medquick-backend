@@ -35,94 +35,182 @@ export class EmailService {
     }
 
     sendWelcomeEmail(to: string | string[]) {
-        const subject = "Sistema Medquick - Registro de usuario"
+        const subject = "Bienvenido a MedQuick - Tu cuenta ha sido creada";
 
-        const htmlBody =
-            `
-           <!DOCTYPE html>
+        const htmlBody = `
+    <!DOCTYPE html>
     <html lang="es">
     <head>
-      <meta charset="UTF-8">
-      <title>Agéndate sv</title>
-      <style>
-        body {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          font-family: Arial, sans-serif;
-        }
-        .container {
-          text-align: center;
-          background: radial-gradient(circle at center, #1B4DD9, #1B2A66);
-          padding: 30px;
-          border-radius: 20px;
-          color: white;
-          max-width: 65%;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          margin: 0 auto;
-          position: relative;
-          top: 30%;
-        }
-        h1 { font-size: 2.5em; margin-bottom: 20px; }
-        p { font-size: 1.2em; margin-bottom: 20px; text-align: justify; }
-        .download-btn {
-          background-color: #13C296;
-          color: white !important;
-          border: none;
-          padding: 10px 20px;
-          font-size: 1em;
-          cursor: pointer;
-          border-radius: 5px;
-          text-decoration: none;
-          display: inline-block;
-        }
-        .download-btn:hover {
-          background-color: #2e8b3d;
-        }
-      </style>
+        <meta charset="UTF-8">
+        <title>Bienvenido a MedQuick</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f6f9;
+                color: #333;
+            }
+            .container {
+                max-width: 600px;
+                margin: 50px auto;
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .header img {
+                width: 180px;
+            }
+            h1 {
+                color: #1B4DD9;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+            p {
+                font-size: 16px;
+                line-height: 1.6;
+            }
+            .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 14px;
+                color: #888;
+            }
+            .cta-btn {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 25px;
+                background-color: #1B4DD9;
+                color:rgb(255, 255, 255);
+                text-decoration: none;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+            .cta-btn:hover {
+                background-color: #1B4DD9;
+            }
+        </style>
     </head>
-    <body style="margin:0;padding:0;width:100%;height:100%;background-color:white;">
-      <div class="container">
-        <div class="header">
-          <img src="https://i.ibb.co/FdQJZvn/Logo-Completo-white.png" alt="consulta SV Logo" style="width:200px;height:80px;">
-
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="https://i.ibb.co/FdQJZvn/Logo-Completo-white.png" alt="MedQuick Logo">
+            </div>
+            <h1>¡Bienvenido a MedQuick!</h1>
+            <p>Nos alegra tenerte en nuestra plataforma. Tu cuenta ha sido creada exitosamente y ahora formas parte de una comunidad que apuesta por la innovación y la salud digital.</p>
+            <p>Ya puedes iniciar sesión con tus credenciales registradas. Si necesitas ayuda, nuestro equipo de soporte está disponible para asistirte.</p>
+            <div class="footer">
+                © ${new Date().getFullYear()} MedQuick. Todos los derechos reservados.
+            </div>
         </div>
-        <div class="article">
-          <p>Te informamos que tu cuenta ha sido creada en Medquick, a continuación, encontrarás la contraseña temporal que te permitirá acceder a tu cuenta por primera vez:</p>
-          <p>Contraseña temporal: CONTRASENA_TEMPORAL</p>
-          <p>Abre tu applicacion y utiliza la contraseña temporal para iniciar sesión</p>
-        </div>
-        <br>
-        <div>
-          <img src="URL_DEL_GOES" alt="goes SV Logo" style="width:200px;height:80px;">
-        </div>
-      </div>
     </body>
     </html>
-
-        `
-
-        const attachments = [
-            /* {
-                filename: 'logs-all.log',
-                path: './logs/logs-all.log',
-            }, */
-            {
-                filename: 'logs-high.log',
-                path: './logs/logs-high.log',
-            },
-            {
-                filename: 'logs-medium.log',
-                path: './logs/logs-medium.log',
-            },
-        ]
+    `;
 
         return this.sendEmail({
             to,
             subject,
             body: htmlBody,
             //attachments,
-        })
+        });
     }
+
+    sendAppointmentConfirmationEmail(to: string | string[], appointmentDateISO: string) {
+        const subject = "Confirmación de cita en MedQuick";
+
+        // Convertir ISO string a objeto Date
+        const appointmentDate = new Date(appointmentDateISO);
+
+        // Formatear la fecha de forma bonita en español
+        const formattedDate = new Intl.DateTimeFormat('es-SV', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true,
+            timeZone: 'America/El_Salvador', // Ajusta si tu servidor está en otra zona
+        }).format(appointmentDate);
+
+        const htmlBody = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Cita Programada</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f6f9;
+                color: #333;
+            }
+            .container {
+                max-width: 600px;
+                margin: 50px auto;
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .header img {
+                width: 180px;
+            }
+            h1 {
+                color: #1B4DD9;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+            p {
+                font-size: 16px;
+                line-height: 1.6;
+            }
+            .highlight {
+                font-weight: bold;
+                color: #1B4DD9;
+            }
+            .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 14px;
+                color: #888;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="https://i.ibb.co/FdQJZvn/Logo-Completo-white.png" alt="MedQuick Logo">
+            </div>
+            <h1>Tu cita ha sido programada</h1>
+            <p>Nos complace informarte que tu cita ha sido agendada exitosamente en <strong>MedQuick</strong>.</p>
+            <p><span class="highlight">📅 Fecha y hora:</span><br>${formattedDate}</p>
+            <p>Por favor, intenta estar puntual para aprovechar al máximo tu consulta.</p>
+            <p>Si necesitas reprogramarla o cancelarla, puedes hacerlo desde la plataforma.</p>
+            <div class="footer">
+                © ${new Date().getFullYear()} MedQuick. Todos los derechos reservados.
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+        return this.sendEmail({
+            to,
+            subject,
+            body: htmlBody,
+        });
+    }
+
+
+
 }
